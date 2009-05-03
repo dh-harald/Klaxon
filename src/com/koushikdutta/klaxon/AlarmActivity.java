@@ -4,7 +4,6 @@ import java.util.Calendar;
 import java.util.GregorianCalendar;
 
 import android.app.Activity;
-import android.app.ActivityManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -18,15 +17,14 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Vibrator;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
 
 public class AlarmActivity extends Activity
 {
@@ -195,6 +193,8 @@ public class AlarmActivity extends Activity
 	{
 		Log.i(LOGTAG, "Stopping alarm.");
 		mSettings.setNextSnooze(0);
+		if (mSettings.isOneShot())
+			mSettings.setEnabled(false);
 		AlarmSettings.scheduleNextAlarm(this);
 		finish();
 	}
