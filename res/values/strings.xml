@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<string name="app_name">Klaxon</string>
+	<string name="clock_name">Bed Clock</string>
+	<string name="no_alarm_set">No Alarm Set</string>
+	<string-array name="days_of_week">
+		<item>Monday</item>
+		<item>Tuesday</item>
+		<item>Wednesday</item>
+		<item>Thursday</item>
+		<item>Friday</item>
+		<item>Saturday</item>
+		<item>Sunday</item>
+	</string-array>
+	<string-array name="snooze_times">
+		<item>No Snooze</item>
+		<item>5 Minutes</item>
+		<item>10 Minutes</item>
+		<item>15 Minutes</item>
+		<item>20 Minutes</item>
+		<item>25 Minutes</item>
+	</string-array>
+	<string-array name="alarm_volumes">
+		<item>50%</item>
+		<item>60%</item>
+		<item>70%</item>
+		<item>80%</item>
+		<item>90%</item>
+		<item>100%</item>
+	</string-array>
+	<string-array name="volume_ramps">
+		<item>Immediately</item>
+		<item>10 seconds</item>
+		<item>20 seconds</item>
+		<item>30 seconds</item>
+		<item>40 seconds</item>
+		<item>50 seconds</item>
+		<item>60 seconds</item>
+	</string-array>
+</resources>
