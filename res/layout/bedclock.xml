@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LinearLayout android:id="@+id/LinearLayout01"
+	android:layout_width="fill_parent" android:layout_height="fill_parent"
+	xmlns:android="http://schemas.android.com/apk/res/android" android:gravity="center_horizontal" android:orientation="vertical">
+
+<TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Sunday , May 3, 2009" android:id="@+id/DateLayout" android:textSize="32sp" android:layout_marginTop="15sp"></TextView><LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/ClockLayout"></LinearLayout>
+
+<TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Work: 8 hours" android:id="@+id/NextAlarmLayout" android:textSize="24sp"></TextView>
+</LinearLayout>
