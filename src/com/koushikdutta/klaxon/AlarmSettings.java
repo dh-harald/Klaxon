@@ -11,177 +11,157 @@ import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.SharedPreferences.Editor;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteOpenHelper;
 import android.net.Uri;
 import android.provider.Settings;
 
-public class AlarmSettings
-{
-	SharedPreferences mPreferences;
-	Editor mEditor;
-	Context mContext;
-	String mAlarmId;
-	Thread mThread = null;
+import com.antlersoft.android.dbimpl.NewInstance;
 
-	void commit()
+public class AlarmSettings extends AlarmSettingsBase {
+
+	static class KlaxonDatabaseHelper extends SQLiteOpenHelper
 	{
-		mEditor.commit();
-		//		if (mThread == null)
-		//		{
-		//			mThread = new Thread()
-		//			{
-		//				@Override
-		//				public void run()
-		//				{
-		//					try
-		//					{
-		//						Thread.sleep(2000);
-		//						mEditor.commit();
-		//					}
-		//					catch(Exception ex)
-		//					{
-		//					}
-		//					finally
-		//					{
-		//						mThread = null;
-		//					}
-		//				}
-		//			};
-		//			mThread.start();
-		//		}
-	}
+	    private static final String DATABASE_NAME = "klaxon.db";
+	    private static final int DATABASE_VERSION = 1;
 
-	public AlarmSettings(Context context, String alarmId)
+	    public KlaxonDatabaseHelper(Context context) {
+			super(context, DATABASE_NAME, null, DATABASE_VERSION);
+		}
+
+		@Override
+		public void onCreate(SQLiteDatabase db) {
+			createDatabase(db);
+		}
+
+		@Override
+		public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+			createDatabase(db);
+		}
+		
+		private void createDatabase(SQLiteDatabase db)
+		{
+			db.execSQL("DROP TABLE IF EXISTS " + GEN_TABLE_NAME);
+			db.execSQL(AlarmSettingsBase.GEN_CREATE);
+		}
+	}
+	
+	static public ArrayList<AlarmSettings> getAlarms(final Context context)
+	{
+		ArrayList<AlarmSettings> alarms = new  ArrayList<AlarmSettings>();
+		KlaxonDatabaseHelper helper = new KlaxonDatabaseHelper(context);
+		final SQLiteDatabase db = helper.getWritableDatabase();
+		
+		AlarmSettings.getAll(db, AlarmSettings.GEN_TABLE_NAME, alarms, 
+				new NewInstance<AlarmSettings>()
+				{
+					public AlarmSettings get() 
+					{
+						return new AlarmSettings(context, db);
+					}
+				});
+		db.close();
+		return alarms;
+	}
+	
+	static public SQLiteDatabase getDatabase(final Context context)
+	{
+		KlaxonDatabaseHelper helper = new KlaxonDatabaseHelper(context);
+		return helper.getWritableDatabase();
+	}
+	
+	Context mContext;
+	SQLiteDatabase mDatabase;
+	public AlarmSettings(Context context, SQLiteDatabase database)
 	{
 		mContext = context;
-		mAlarmId = alarmId;
-		mPreferences = mContext.getSharedPreferences(String.format("AlarmSettings%s", mAlarmId), Context.MODE_PRIVATE);
-		mEditor = mPreferences.edit();
+		mDatabase = database;
+		setAlarmDays(new boolean[] { true, true, true, true, true, false, false });
+		setEnabled(true);
+		setHour(new Date().getHours());
+		setMinutes(new Date().getMinutes());
+		setName("Alarm");
+		setNextSnooze(0);
+		setSnoozeTime(10);
+		setVibrateEnabled(true);
+		setVolume(100);
+		setVolumeRamp(20);
 	}
-
-	public String getId()
+	
+	public static AlarmSettings getAlarmSettingsById(Context context, SQLiteDatabase database, long id)
 	{
-		return mAlarmId;
+		AlarmSettings ret = new AlarmSettings(context, database);
+		Cursor cursor = database.rawQuery("SELECT * FROM " + GEN_TABLE_NAME + " WHERE " + GEN_FIELD__id + " = " + id, null);
+		cursor.moveToNext();
+		ret.populate(cursor);
+		cursor.close();
+		return ret;
 	}
-
-	public void setEnabled(boolean value)
+	
+	public void populate(Cursor cursor)
 	{
-		mEditor.putBoolean("AlarmEnabled", value);
-		commit();
+		Gen_populate(cursor, Gen_columnIndices(cursor));
 	}
-
-	public boolean getEnabled()
+	
+	public void delete()
 	{
-		return mPreferences.getBoolean("AlarmEnabled", true);
+		Gen_delete(mDatabase);
 	}
-
-	public boolean getVibrateEnabled()
-	{
-		return mPreferences.getBoolean("VibrateEnabled", true);
-	}
-
-	public void setVibrateEnabled(boolean value)
-	{
-		mEditor.putBoolean("VibrateEnabled", value);
-		commit();
-	}
-
-	public void Delete()
-	{
-		mEditor.clear();
-		commit();
-		KlaxonSettings settings = new KlaxonSettings(mContext);
-		ArrayList<String> allAlarmIds = settings.getAlarmIds();
-		allAlarmIds.remove(mAlarmId);
-		settings.setAlarmIds(allAlarmIds);
-	}
-
+	
 	public boolean[] getAlarmDays()
 	{
-		boolean[] alarmDays = new boolean[7];
-		for (int i = 0; i < alarmDays.length; i++)
+		boolean[] ret = new boolean[7];
+		int alarmDays = getAlarmDaysBase();
+		for (int i = 0; i < 7; i++) 
 		{
-			alarmDays[i] = mPreferences.getBoolean(String.format("AlarmDays%d", i), false);
-		}
-		return alarmDays;
-	}
-
-	public void setAlarmDays(boolean[] alarmDays)
-	{
-		for (int i = 0; i < alarmDays.length; i++)
-		{
-			mEditor.putBoolean(String.format("AlarmDays%d", i), alarmDays[i]);
-		}
-		commit();
-	}
-
-	static public ArrayList<AlarmSettings> getAlarms(Context context)
-	{
-		KlaxonSettings settings = new KlaxonSettings(context);
-		ArrayList<String> allAlarmIds = settings.getAlarmIds();
-
-		ArrayList<AlarmSettings> ret = new ArrayList<AlarmSettings>();
-		for (String alarmId : allAlarmIds)
-		{
-			ret.add(new AlarmSettings(context, alarmId));
+			if ((alarmDays & (1 << i)) != 0)
+				ret[i] = true;
 		}
 		return ret;
 	}
-
-	public int getHour()
+	
+	public void setAlarmDays(boolean[] alarmDays)
 	{
-		return mPreferences.getInt("Hour", 1);
-	}
-
-	public void setHour(int hour)
-	{
-		mEditor.putInt("Hour", hour);
-		commit();
-	}
-
-	public int getMinutes()
-	{
-		return mPreferences.getInt("Minutes", new Date().getMinutes());
-	}
-
-	public void setMinutes(int minutes)
-	{
-		mEditor.putInt("Minutes", minutes);
-		commit();
-	}
-
-	public Uri getRingtone()
-	{
-		try
+		int alarmDaysInt = 0;
+		for (int i = 0; i < 7; i++)
 		{
-			return Uri.parse(mPreferences.getString("Ringtone", null));
+			if (alarmDays[i])
+				alarmDaysInt |= (1 << i);
 		}
-		catch (Exception e)
-		{
-			return null;
-		}
+		setAlarmDaysBase(alarmDaysInt);
 	}
-
-	public void setRingtone(Uri ringtone)
-	{
-		mEditor.putString("Ringtone", ringtone.toString());
-		commit();
-	}
-
+	
 	public boolean isOneShot()
 	{
 		return isOneShot(getAlarmDays());
 	}
-
-	static boolean isOneShot(boolean[] alarmDays)
+	
+	public static Cursor getCursor(SQLiteDatabase database)
 	{
-		boolean hasDays = false;
-		for (int i = 0; i < alarmDays.length; i++)
-			hasDays |= alarmDays[i];
-		return !hasDays;
+		return database.rawQuery("SELECT * FROM " + GEN_TABLE_NAME, null);
 	}
-
+	
+	public boolean insert()
+	{
+		return Gen_insert(mDatabase);
+	}
+	
+	public Uri getRingtone()
+	{
+		String uri = getRingtoneBase();
+		if (uri == null)
+			return null;
+		return Uri.parse(uri);
+	}
+	
+	public void setRingtone(Uri uri)
+	{
+		if (uri == null)
+			setRingtoneBase(null);
+		else
+			setRingtoneBase(uri.toString());
+	}
 	public Long getNextAlarmTime()
 	{
 		if (!getEnabled())
@@ -208,9 +188,8 @@ public class AlarmSettings
 		}
 		return null;
 	}
-
+	
 	public static final String ALARM_ALERT_ACTION = "com.koushikdutta.klaxon.ALARM_ALERT";
-
 	public static AlarmSettings scheduleNextAlarm(Context context)
 	{
 		Long minAlarm = null;
@@ -230,7 +209,7 @@ public class AlarmSettings
 		Intent intent = new Intent(ALARM_ALERT_ACTION);
 		if (minAlarmSettings != null)
 		{
-			intent.putExtra("AlarmId", minAlarmSettings.getId());
+			intent.putExtra("AlarmId", minAlarmSettings.get_Id());
 			intent.putExtra("AlarmTime", (long) minAlarm);
 		}
 
@@ -254,7 +233,7 @@ public class AlarmSettings
 		context.sendBroadcast(alarmChanged);
 		return minAlarmSettings;
 	}
-
+	
 	/**
 	 * Shows day and time -- used for lock screen
 	 */
@@ -277,59 +256,17 @@ public class AlarmSettings
 	{
 		Settings.System.putString(context.getContentResolver(), Settings.System.NEXT_ALARM_FORMATTED, timeString);
 	}
-
-	public int getSnoozeTime()
+	
+	static boolean isOneShot(boolean[] alarmDays)
 	{
-		return mPreferences.getInt("SnoozeTime", 10);
+		boolean hasDays = false;
+		for (int i = 0; i < alarmDays.length; i++)
+			hasDays |= alarmDays[i];
+		return !hasDays;
 	}
-
-	public void setSnoozeTime(int snoozeTime)
+	
+	public void update()
 	{
-		mEditor.putInt("SnoozeTime", snoozeTime);
-		commit();
-	}
-
-	public void setNextSnooze(long nextSnooze)
-	{
-		mEditor.putLong("NextSnooze", nextSnooze);
-		commit();
-	}
-
-	public long getNextSnooze()
-	{
-		return mPreferences.getLong("NextSnooze", 0);
-	}
-
-	public int getVolume()
-	{
-		return mPreferences.getInt("Volume", 100);
-	}
-
-	public void setVolume(int volume)
-	{
-		mEditor.putInt("Volume", volume);
-		commit();
-	}
-
-	public int getVolumeRamp()
-	{
-		return mPreferences.getInt("VolumeRamp", 20);
-	}
-
-	public void setVolumeRamp(int volumeRamp)
-	{
-		mEditor.putInt("VolumeRamp", volumeRamp);
-		commit();
-	}
-
-	public String getName()
-	{
-		return mPreferences.getString("Name", null);
-	}
-
-	public void setName(String name)
-	{
-		mEditor.putString("Name", name);
-		commit();
+		Gen_update(mDatabase);
 	}
 }

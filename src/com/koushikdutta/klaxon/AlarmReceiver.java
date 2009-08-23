@@ -40,20 +40,23 @@ public class AlarmReceiver extends BroadcastReceiver
 			if (alarmId == null || alarmTime > cal.getTimeInMillis())
 				return;
 			KlaxonSettings klaxonSettings = new KlaxonSettings(context);
-			if (!klaxonSettings.getAlarmIds().contains(alarmId))
-				return;
+
+			/*
+			//if (!klaxonSettings.getAlarmIds().contains(alarmId))
+			//	return;
 			AlarmAlertWakeLock.acquire(context);
-			AlarmSettings settings = new AlarmSettings(context, alarmId);
+			AlarmSettingsOld settings = new AlarmSettingsOld(context, alarmId);
 			if (settings.isOneShot())
 				settings.setEnabled(false);
 			Intent alarmIntent = new Intent(context, AlarmActivity.class);
 			alarmIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 			alarmIntent.putExtra("AlarmId", alarmId);
 			context.startActivity(alarmIntent);
+			*/
 		}
 		finally
 		{
-			AlarmSettings.scheduleNextAlarm(context);
+			AlarmSettingsOld.scheduleNextAlarm(context);
 		}
 	}
 }

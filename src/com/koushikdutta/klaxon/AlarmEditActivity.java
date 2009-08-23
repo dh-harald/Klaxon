@@ -4,11 +4,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.GregorianCalendar;
 
-import com.koushikdutta.klaxon.RepeatPreference.OnRepeatChangeListener;
-import com.koushikdutta.klaxon.SnoozePreference.OnSnoozeChangeListener;
-import com.koushikdutta.klaxon.VolumePreference.OnVolumeChangeListener;
-import com.koushikdutta.klaxon.VolumeRampPreference.OnVolumeRampChangeListener;
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -17,6 +12,7 @@ import android.app.TimePickerDialog.OnTimeSetListener;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
@@ -35,6 +31,11 @@ import android.widget.EditText;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
+import com.koushikdutta.klaxon.RepeatPreference.OnRepeatChangeListener;
+import com.koushikdutta.klaxon.SnoozePreference.OnSnoozeChangeListener;
+import com.koushikdutta.klaxon.VolumePreference.OnVolumeChangeListener;
+import com.koushikdutta.klaxon.VolumeRampPreference.OnVolumeRampChangeListener;
+
 public class AlarmEditActivity extends PreferenceActivity
 {
 	MenuItem mDeleteAlarm;
@@ -49,6 +50,7 @@ public class AlarmEditActivity extends PreferenceActivity
 	VolumeRampPreference mVolumeRampPref;
 	CheckBoxPreference mVibrateEnabledPref;
 	boolean mIs24HourMode = false;
+	SQLiteDatabase mDatabase;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
@@ -57,7 +59,8 @@ public class AlarmEditActivity extends PreferenceActivity
 		addPreferencesFromResource(R.xml.alarm_prefs);
 		Intent i = getIntent();
 		Bundle bundle = i.getExtras();
-		mSettings = new AlarmSettings(this, bundle.getString("Id"));
+		mDatabase = AlarmSettings.getDatabase(this);
+		mSettings = AlarmSettings.getAlarmSettingsById(this, mDatabase, i.getLongExtra(AlarmSettings.GEN_FIELD__id, -1));
 		setResult(Activity.RESULT_OK, i);
 
 		mNamePref = findPreference("alarmname");
@@ -106,6 +109,7 @@ public class AlarmEditActivity extends PreferenceActivity
 		{
 			public void onVolumeChanged()
 			{
+				mSettings.update();
 				refreshVolumeSummary();
 			}
 		});
@@ -114,6 +118,7 @@ public class AlarmEditActivity extends PreferenceActivity
 		{
 			public void onVolumeRampChanged()
 			{
+				mSettings.update();
 				refreshVolumeRampSummary();
 			}
 		});
@@ -208,6 +213,7 @@ public class AlarmEditActivity extends PreferenceActivity
 
 	void scheduleNextAlarm()
 	{
+		mSettings.update();
 		AlarmSettings.scheduleNextAlarm(AlarmEditActivity.this);
 
 		Long next = mSettings.getNextAlarmTime();
@@ -266,6 +272,7 @@ public class AlarmEditActivity extends PreferenceActivity
 				public void onClick(DialogInterface dialog, int which)
 				{
 					mSettings.setName(input.getText().toString());
+					mSettings.update();
 					refreshNameSummary();
 				}
 			});
@@ -370,6 +377,7 @@ public class AlarmEditActivity extends PreferenceActivity
 		else if (preference == mVibrateEnabledPref)
 		{
 			mSettings.setVibrateEnabled(mVibrateEnabledPref.isChecked());
+			mSettings.update();
 		}
 		else if (preference == mNamePref)
 		{
@@ -390,6 +398,7 @@ public class AlarmEditActivity extends PreferenceActivity
 				if (uri != null)
 				{
 					mSettings.setRingtone(uri);
+					mSettings.update();
 					Ringtone rt = RingtoneManager.getRingtone(this, uri);
 					mRingtonePref.setSummary(rt.getTitle(this));
 				}
@@ -403,6 +412,7 @@ public class AlarmEditActivity extends PreferenceActivity
 				if (uri != null)
 				{
 					mSettings.setRingtone(Uri.parse(uri));
+					mSettings.update();
 					refreshRingtoneSummary();
 				}
 			}

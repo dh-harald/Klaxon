@@ -12,6 +12,8 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.ColorStateList;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.view.LayoutInflater;
@@ -23,6 +25,7 @@ import android.view.View.OnLongClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
+import android.widget.CursorAdapter;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -36,21 +39,18 @@ public class KlaxonActivity extends Activity
 	ListView mListView;
 	LayoutInflater mInflater;
 	AlarmAdapter mAdapter;
+	SQLiteDatabase mDatabase;
 
-	class AlarmAdapter extends ArrayAdapter<AlarmSettings>
+	class AlarmAdapter extends CursorAdapter
 	{
-		public AlarmAdapter(Context context)
-		{
-			super(context, R.id.TimeText);
+		public AlarmAdapter(Context context, Cursor c) {
+			super(context, c);
 		}
 
 		@Override
-		public View getView(int position, View convertView, ViewGroup parent)
-		{
-			View view = convertView;
-			if (view == null)
-				view = mInflater.inflate(R.layout.alarmtime, parent, false);
-			final AlarmSettings settings = getItem(position);
+		public void bindView(View view, Context context, Cursor cursor) {
+			final AlarmSettings settings = new AlarmSettings(context, mDatabase);
+			settings.populate(cursor);
 			//DateFormat df = DateFormat.getTimeInstance(DateFormat.SHORT);
 			SimpleDateFormat df;
 			if (mIs24HourMode)
@@ -111,30 +111,34 @@ public class KlaxonActivity extends Activity
 			});
 			cb.setChecked(settings.getEnabled());
 
-			final int index = position;
 			view.setOnClickListener(new View.OnClickListener()
 			{
 				public void onClick(View v)
 				{
-					EditAlarm(settings.getId(), index);
+					EditAlarm(settings.get_Id());
 				}
 			});
 
+			/*
 			view.setOnLongClickListener(new OnLongClickListener()
 			{
 				public boolean onLongClick(View arg0)
 				{
-					mAdapter.remove(settings);
-					settings.Delete();
+					settings.delete();
+					mAdapter.changeCursor(AlarmSettings.getCursor(mDatabase));
 					return true;
 				}
 			});
+			*/
 
 			boolean isOneShot = settings.isOneShot();
 			view.findViewById(R.id.AlarmDays).setVisibility(isOneShot ? View.GONE : View.VISIBLE);
-			view.findViewById(R.id.OneShot).setVisibility(isOneShot ? View.VISIBLE : View.GONE);
+			view.findViewById(R.id.OneShot).setVisibility(isOneShot ? View.VISIBLE : View.GONE);			
+		}
 
-			return view;
+		@Override
+		public View newView(Context context, Cursor cursor, ViewGroup parent) {
+			return mInflater.inflate(R.layout.alarmtime, parent, false);
 		}
 	}
 
@@ -146,6 +150,8 @@ public class KlaxonActivity extends Activity
 	public void onCreate(Bundle savedInstanceState)
 	{
 		super.onCreate(savedInstanceState);
+		
+		mDatabase = AlarmSettings.getDatabase(this);
 
 		String value = Settings.System.getString(getContentResolver(), Settings.System.TIME_12_24);
 		mIs24HourMode = !(value == null || value.equals("12"));
@@ -156,19 +162,15 @@ public class KlaxonActivity extends Activity
 		{
 			mSettings.setIsFirstStart(false);
 
-			ArrayList<String> alarmIds = mSettings.getAlarmIds();
-
 			boolean alarmDays[] = new boolean[] { true, true, true, true, true, false, false };
 
 			String id = UUID.randomUUID().toString();
-			AlarmSettings newSet = new AlarmSettings(this, id);
+			AlarmSettings newSet = new AlarmSettings(this, mDatabase);
 			newSet.setEnabled(false);
 			newSet.setHour(8);
 			newSet.setMinutes(0);
 			newSet.setAlarmDays(alarmDays);
-			alarmIds.add(id);
-
-			mSettings.setAlarmIds(alarmIds);
+			newSet.insert();
 		}
 
 		setContentView(R.layout.klaxonactivity);
@@ -184,12 +186,12 @@ public class KlaxonActivity extends Activity
 		});
 		refreshClockFace();
 
-		mAdapter = new AlarmAdapter(this);
+		mAdapter = new AlarmAdapter(this, AlarmSettings.getCursor(mDatabase));
 		mListView = (ListView) findViewById(R.id.AlarmList);
 		mListView.setAdapter(mAdapter);
 		mListView.setVerticalScrollBarEnabled(true);
 		mListView.setItemsCanFocus(true);
-		RefreshAlarms();
+		mAdapter.changeCursor(AlarmSettings.getCursor(mDatabase));
 
 		AlarmSettings.scheduleNextAlarm(this);
 	}
@@ -218,11 +220,10 @@ public class KlaxonActivity extends Activity
 		return true;
 	}
 
-	void EditAlarm(String alarmId, int position)
+	void EditAlarm(long alarmId)
 	{
 		Intent intent = new Intent(this, AlarmEditActivity.class);
-		intent.putExtra("Id", alarmId);
-		intent.putExtra("Position", position);
+		intent.putExtra(AlarmSettings.GEN_FIELD__id, alarmId);
 		startActivityForResult(intent, REQUEST_ALARM_EDIT);
 	}
 
@@ -234,15 +235,9 @@ public class KlaxonActivity extends Activity
 	{
 		if (item == mAddAlarm)
 		{
-			String id = UUID.randomUUID().toString();
-			ArrayList<String> alarmIds = mSettings.getAlarmIds();
-			alarmIds.add(id);
-			mSettings.setAlarmIds(alarmIds);
-			AlarmSettings settings = new AlarmSettings(this, id);
-			settings.setHour(new Date().getHours());
-			settings.setMinutes(new Date().getMinutes());
-			mAdapter.add(settings);
-			EditAlarm(id, mAdapter.getCount() - 1);
+			AlarmSettings settings = new AlarmSettings(this, mDatabase);
+			settings.insert();
+			EditAlarm(settings.get_Id());
 		}
 		else if (item == mPreferences)
 		{
@@ -257,18 +252,6 @@ public class KlaxonActivity extends Activity
 		return super.onMenuItemSelected(featureId, item);
 	}
 
-	void RefreshAlarms()
-	{
-		ArrayList<AlarmSettings> settings = AlarmSettings.getAlarms(this);
-		Object alarmSettings = settings.toArray();
-
-		mAdapter.clear();
-		for (AlarmSettings setting : settings)
-		{
-			mAdapter.add(setting);
-		}
-	}
-
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data)
 	{
@@ -276,19 +259,7 @@ public class KlaxonActivity extends Activity
 		{
 			if (data != null)
 			{
-				Bundle extras = data.getExtras();
-				String id = extras.getString("Id");
-				int position = extras.getInt("Position", -1);
-				if (id != null && position != -1)
-				{
-					AlarmSettings item = mAdapter.getItem(position);
-					boolean deleted = extras.getBoolean("Deleted");
-					mAdapter.remove(item);
-					if (!deleted)
-						mAdapter.insert(item, position);
-					else
-						item.Delete();
-				}
+				mAdapter.changeCursor(AlarmSettings.getCursor(mDatabase));
 				AlarmSettings.scheduleNextAlarm(this);
 			}
 		}

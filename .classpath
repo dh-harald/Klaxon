@@ -3,5 +3,6 @@
 	<classpathentry kind="con" path="com.android.ide.eclipse.adt.ANDROID_FRAMEWORK"/>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="gen"/>
+	<classpathentry kind="lib" path="/Users/koush/src/sqlitegen-read-only/dist/com.antlersoft.android.db_0.1.2.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

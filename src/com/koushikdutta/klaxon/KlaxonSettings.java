@@ -69,31 +69,6 @@ public class KlaxonSettings
 		mEditor.putInt("ClockFace", clockFace);
 		mEditor.commit();
 	}
-
-	public ArrayList<String> getAlarmIds()
-	{
-		String allAlarmIds = mPreferences.getString("AlarmIds", "");
-		String[] splitAlarmIds = allAlarmIds.split(",");
-		ArrayList<String> ret = new ArrayList<String>();
-		for (String alarmId : splitAlarmIds)
-		{
-			if (alarmId == "")
-				continue;
-			ret.add(alarmId);
-		}
-		return ret;
-	}
-
-	public void setAlarmIds(ArrayList<String> alarmIds)
-	{
-		String allAlarmIds = "";
-		for (String alarmId : alarmIds)
-		{
-			allAlarmIds += alarmId + ",";
-		}
-		mEditor.putString("AlarmIds", allAlarmIds);
-		mEditor.commit();
-	}
 	
 	public int getBedClockColor(int defaultColor)
 	{

@@ -21,7 +21,7 @@ public class ClockActivity extends Activity {
 	Handler mHandler = new Handler();
 	TextView mDateView;
 	TextView mNextAlarm;
-	AlarmSettings mNextAlarmSettings;
+	AlarmSettingsOld mNextAlarmSettings;
 	KlaxonSettings mSettings;
 	
 	@Override
@@ -47,7 +47,7 @@ public class ClockActivity extends Activity {
 		filter.addAction(Intent.ACTION_TIMEZONE_CHANGED);
 		registerReceiver(mIntentReceiver, filter, null, mHandler);
 
-		mNextAlarmSettings = AlarmSettings.scheduleNextAlarm(this);
+		mNextAlarmSettings = AlarmSettingsOld.scheduleNextAlarm(this);
 
 		mDateView = (TextView) findViewById(R.id.DateLayout);
 		mNextAlarm = (TextView) findViewById(R.id.NextAlarmLayout);
