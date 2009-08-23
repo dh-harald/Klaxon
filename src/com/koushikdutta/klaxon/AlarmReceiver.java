@@ -35,6 +35,7 @@ public class AlarmReceiver extends BroadcastReceiver
 	@Override
 	public void onReceive(Context context, Intent intent)
 	{
+		Log.i(LOGTAG, "AlarmReceiver received has received a broadcast.");
 		try
 		{
 			long alarmTime = intent.getLongExtra("AlarmTime", 0);
@@ -48,7 +49,7 @@ public class AlarmReceiver extends BroadcastReceiver
 			
 			AlarmAlertWakeLock.acquire(context);
 			AlarmSettings settings = AlarmSettings.getAlarmSettingsById(context, alarmId);
-			Log.i(LOGTAG, "Sounding alarm" + settings.getName());
+			Log.i(LOGTAG, "Sounding alarm " + settings.getName());
 			if (settings.isOneShot())
 				settings.setEnabled(false);
 			Intent alarmIntent = new Intent(context, AlarmActivity.class);

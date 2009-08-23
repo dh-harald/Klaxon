@@ -8,6 +8,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.database.sqlite.SQLiteDatabase;
 import android.hardware.SensorListener;
 import android.hardware.SensorManager;
 import android.media.AudioManager;
@@ -41,6 +42,7 @@ public class AlarmActivity extends Activity
 	Vibrator mVibrator;
 	boolean mVibrateEnabled = true;
 	final static String LOGTAG = "Klaxon";
+	SQLiteDatabase mDatabase;
 
 	static boolean isFlat(int orientation)
 	{
@@ -143,7 +145,8 @@ public class AlarmActivity extends Activity
 
 		mVibrator = (Vibrator) getSystemService(VIBRATOR_SERVICE);
 		long alarmId = intent.getLongExtra(AlarmSettings.GEN_FIELD__id, -1);
-		mSettings = AlarmSettings.getAlarmSettingsById(this, alarmId);
+		mDatabase = AlarmSettings.getDatabase(this);
+		mSettings = AlarmSettings.getAlarmSettingsById(this, mDatabase, alarmId);
 		mKlaxonSettings = new KlaxonSettings(this);
 		mSnoozeTime = mSettings.getSnoozeTime();
 
@@ -195,6 +198,7 @@ public class AlarmActivity extends Activity
 		mSettings.setNextSnooze(0);
 		if (mSettings.isOneShot())
 			mSettings.setEnabled(false);
+		mSettings.update();
 		AlarmSettings.scheduleNextAlarm(this);
 		finish();
 	}
@@ -257,6 +261,7 @@ public class AlarmActivity extends Activity
 		AlarmAlertWakeLock.acquirePartial(this);
 		mSettings.setNextSnooze(mSnoozeEnd.getTimeInMillis());
 		mSettings.setEnabled(true);
+		mSettings.update();
 		AlarmSettings.scheduleNextAlarm(this);
 	}
 
