@@ -29,7 +29,7 @@ import android.widget.TextView;
 public class AlarmActivity extends Activity
 {
 	TextView mSnoozeTimeText;
-	AlarmSettingsOld mSettings;
+	AlarmSettings mSettings;
 	MediaPlayer mPlayer;
 	Handler mHandler = new Handler();
 	KlaxonSettings mKlaxonSettings;
@@ -142,8 +142,8 @@ public class AlarmActivity extends Activity
 		Intent intent = getIntent();
 
 		mVibrator = (Vibrator) getSystemService(VIBRATOR_SERVICE);
-		String alarmId = intent.getStringExtra("AlarmId");
-		mSettings = new AlarmSettingsOld(this, alarmId);
+		long alarmId = intent.getLongExtra(AlarmSettings.GEN_FIELD__id, -1);
+		mSettings = AlarmSettings.getAlarmSettingsById(this, alarmId);
 		mKlaxonSettings = new KlaxonSettings(this);
 		mSnoozeTime = mSettings.getSnoozeTime();
 
@@ -195,7 +195,7 @@ public class AlarmActivity extends Activity
 		mSettings.setNextSnooze(0);
 		if (mSettings.isOneShot())
 			mSettings.setEnabled(false);
-		AlarmSettingsOld.scheduleNextAlarm(this);
+		AlarmSettings.scheduleNextAlarm(this);
 		finish();
 	}
 
@@ -257,7 +257,7 @@ public class AlarmActivity extends Activity
 		AlarmAlertWakeLock.acquirePartial(this);
 		mSettings.setNextSnooze(mSnoozeEnd.getTimeInMillis());
 		mSettings.setEnabled(true);
-		AlarmSettingsOld.scheduleNextAlarm(this);
+		AlarmSettings.scheduleNextAlarm(this);
 	}
 
 	void stopNotification()

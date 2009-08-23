@@ -89,14 +89,32 @@ public class AlarmSettings extends AlarmSettingsBase {
 		setVolumeRamp(20);
 	}
 	
+
 	public static AlarmSettings getAlarmSettingsById(Context context, SQLiteDatabase database, long id)
 	{
 		AlarmSettings ret = new AlarmSettings(context, database);
 		Cursor cursor = database.rawQuery("SELECT * FROM " + GEN_TABLE_NAME + " WHERE " + GEN_FIELD__id + " = " + id, null);
-		cursor.moveToNext();
+		if (!cursor.moveToNext())
+		{
+			cursor.close();
+			return null;
+		}
 		ret.populate(cursor);
 		cursor.close();
 		return ret;
+	}
+
+	public static AlarmSettings getAlarmSettingsById(Context context, long id)
+	{
+		SQLiteDatabase database = getDatabase(context);
+		try
+		{
+			return getAlarmSettingsById(context, database, id);
+		}
+		finally
+		{
+			database.close();
+		}
 	}
 	
 	public void populate(Cursor cursor)
@@ -209,7 +227,7 @@ public class AlarmSettings extends AlarmSettingsBase {
 		Intent intent = new Intent(ALARM_ALERT_ACTION);
 		if (minAlarmSettings != null)
 		{
-			intent.putExtra("AlarmId", minAlarmSettings.get_Id());
+			intent.putExtra(GEN_FIELD__id, minAlarmSettings.get_Id());
 			intent.putExtra("AlarmTime", (long) minAlarm);
 		}
 

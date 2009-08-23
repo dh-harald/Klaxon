@@ -443,4 +443,10 @@ public class AlarmEditActivity extends PreferenceActivity
 			}
 		}
 	}
+	
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
+		mDatabase.close();
+	}
 }

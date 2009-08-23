@@ -270,4 +270,10 @@ public class KlaxonActivity extends Activity
 
 		super.onActivityResult(requestCode, resultCode, data);
 	}
+	
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
+		mDatabase.close();
+	}
 }

@@ -22,6 +22,8 @@ import java.util.Locale;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 
 /**
  * Glue class: connects AlarmAlert IntentReceiver to AlarmAlert activity. Passes
@@ -29,34 +31,34 @@ import android.content.Intent;
  */
 public class AlarmReceiver extends BroadcastReceiver
 {
+	final static String LOGTAG = "Klaxon";
 	@Override
 	public void onReceive(Context context, Intent intent)
 	{
 		try
 		{
 			long alarmTime = intent.getLongExtra("AlarmTime", 0);
-			String alarmId = intent.getStringExtra("AlarmId");
+			long alarmId = intent.getLongExtra(AlarmSettings.GEN_FIELD__id, -1);
 			GregorianCalendar cal = new GregorianCalendar(Locale.getDefault());
-			if (alarmId == null || alarmTime > cal.getTimeInMillis())
+			if (alarmId == -1 || alarmTime > cal.getTimeInMillis())
+			{
+				Log.e(LOGTAG, "Invalid alarmId (" + alarmId + ") or alarmTime" + alarmTime);
 				return;
-			KlaxonSettings klaxonSettings = new KlaxonSettings(context);
-
-			/*
-			//if (!klaxonSettings.getAlarmIds().contains(alarmId))
-			//	return;
+			}
+			
 			AlarmAlertWakeLock.acquire(context);
-			AlarmSettingsOld settings = new AlarmSettingsOld(context, alarmId);
+			AlarmSettings settings = AlarmSettings.getAlarmSettingsById(context, alarmId);
+			Log.i(LOGTAG, "Sounding alarm" + settings.getName());
 			if (settings.isOneShot())
 				settings.setEnabled(false);
 			Intent alarmIntent = new Intent(context, AlarmActivity.class);
 			alarmIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-			alarmIntent.putExtra("AlarmId", alarmId);
+			alarmIntent.putExtra(AlarmSettings.GEN_FIELD__id, alarmId);
 			context.startActivity(alarmIntent);
-			*/
 		}
 		finally
 		{
-			AlarmSettingsOld.scheduleNextAlarm(context);
+			AlarmSettings.scheduleNextAlarm(context);
 		}
 	}
 }

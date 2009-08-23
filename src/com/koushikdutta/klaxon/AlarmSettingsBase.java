@@ -58,7 +58,7 @@ public abstract class AlarmSettingsBase extends com.antlersoft.android.dbimpl.Id
     private int gen_minutes;
     private java.lang.String gen_ringtoneBase;
     private int gen_snoozeTime;
-    private int gen_nextSnooze;
+    private long gen_nextSnooze;
     private int gen_volume;
     private int gen_volumeRamp;
     private java.lang.String gen_name;
@@ -83,8 +83,8 @@ public abstract class AlarmSettingsBase extends com.antlersoft.android.dbimpl.Id
     public void setRingtoneBase(java.lang.String arg_ringtoneBase) { gen_ringtoneBase = arg_ringtoneBase; }
     public int getSnoozeTime() { return gen_snoozeTime; }
     public void setSnoozeTime(int arg_snoozeTime) { gen_snoozeTime = arg_snoozeTime; }
-    public int getNextSnooze() { return gen_nextSnooze; }
-    public void setNextSnooze(int arg_nextSnooze) { gen_nextSnooze = arg_nextSnooze; }
+    public long getNextSnooze() { return gen_nextSnooze; }
+    public void setNextSnooze(long arg_nextSnooze) { gen_nextSnooze = arg_nextSnooze; }
     public int getVolume() { return gen_volume; }
     public void setVolume(int arg_volume) { gen_volume = arg_volume; }
     public int getVolumeRamp() { return gen_volumeRamp; }
@@ -102,7 +102,7 @@ public abstract class AlarmSettingsBase extends com.antlersoft.android.dbimpl.Id
         values.put(GEN_FIELD_MINUTES,Integer.toString(this.gen_minutes));
         values.put(GEN_FIELD_RINGTONEBASE,this.gen_ringtoneBase);
         values.put(GEN_FIELD_SNOOZETIME,Integer.toString(this.gen_snoozeTime));
-        values.put(GEN_FIELD_NEXTSNOOZE,Integer.toString(this.gen_nextSnooze));
+        values.put(GEN_FIELD_NEXTSNOOZE,Long.toString(this.gen_nextSnooze));
         values.put(GEN_FIELD_VOLUME,Integer.toString(this.gen_volume));
         values.put(GEN_FIELD_VOLUMERAMP,Integer.toString(this.gen_volumeRamp));
         values.put(GEN_FIELD_NAME,this.gen_name);
@@ -160,7 +160,7 @@ public abstract class AlarmSettingsBase extends com.antlersoft.android.dbimpl.Id
             gen_snoozeTime = (int)cursor.getInt(columnIndices[GEN_ID_SNOOZETIME]);
         }
         if ( columnIndices[GEN_ID_NEXTSNOOZE] >= 0 && ! cursor.isNull(columnIndices[GEN_ID_NEXTSNOOZE])) {
-            gen_nextSnooze = (int)cursor.getInt(columnIndices[GEN_ID_NEXTSNOOZE]);
+            gen_nextSnooze = cursor.getLong(columnIndices[GEN_ID_NEXTSNOOZE]);
         }
         if ( columnIndices[GEN_ID_VOLUME] >= 0 && ! cursor.isNull(columnIndices[GEN_ID_VOLUME])) {
             gen_volume = (int)cursor.getInt(columnIndices[GEN_ID_VOLUME]);
@@ -185,7 +185,7 @@ public abstract class AlarmSettingsBase extends com.antlersoft.android.dbimpl.Id
         gen_minutes = (int)values.getAsInteger(GEN_FIELD_MINUTES);
         gen_ringtoneBase = values.getAsString(GEN_FIELD_RINGTONEBASE);
         gen_snoozeTime = (int)values.getAsInteger(GEN_FIELD_SNOOZETIME);
-        gen_nextSnooze = (int)values.getAsInteger(GEN_FIELD_NEXTSNOOZE);
+        gen_nextSnooze = values.getAsLong(GEN_FIELD_NEXTSNOOZE);
         gen_volume = (int)values.getAsInteger(GEN_FIELD_VOLUME);
         gen_volumeRamp = (int)values.getAsInteger(GEN_FIELD_VOLUMERAMP);
         gen_name = values.getAsString(GEN_FIELD_NAME);

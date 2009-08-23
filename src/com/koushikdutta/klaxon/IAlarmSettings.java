@@ -31,7 +31,7 @@ public interface IAlarmSettings {
     int getSnoozeTime();
     
     @FieldAccessor
-    int getNextSnooze();
+    long getNextSnooze();
     
     @FieldAccessor
     int getVolume();
