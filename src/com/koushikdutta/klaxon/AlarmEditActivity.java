@@ -203,6 +203,7 @@ public class AlarmEditActivity extends PreferenceActivity
 	{
 		if (item == mDeleteAlarm)
 		{
+			mSettings.delete();
 			Intent ret = getIntent();
 			ret.putExtra("Deleted", true);
 			finish();

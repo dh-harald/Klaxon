@@ -106,6 +106,7 @@ public class KlaxonActivity extends Activity
 				public void onCheckedChanged(CompoundButton buttonView, boolean isChecked)
 				{
 					settings.setEnabled(isChecked);
+					settings.update();
 					AlarmSettings.scheduleNextAlarm(KlaxonActivity.this);
 				}
 			});

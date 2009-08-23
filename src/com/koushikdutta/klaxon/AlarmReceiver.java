@@ -43,7 +43,7 @@ public class AlarmReceiver extends BroadcastReceiver
 			GregorianCalendar cal = new GregorianCalendar(Locale.getDefault());
 			if (alarmId == -1 || alarmTime > cal.getTimeInMillis())
 			{
-				Log.e(LOGTAG, "Invalid alarmId (" + alarmId + ") or alarmTime" + alarmTime);
+				Log.e(LOGTAG, "Invalid alarmId (" + alarmId + ") or alarmTime (" + alarmTime + ")");
 				return;
 			}
 			
