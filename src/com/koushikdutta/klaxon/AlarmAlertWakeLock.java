@@ -16,7 +16,6 @@
 
 package com.koushikdutta.klaxon;
 
-import android.app.KeyguardManager;
 import android.content.Context;
 import android.os.PowerManager;
 
@@ -26,8 +25,6 @@ import android.os.PowerManager;
  */
 class AlarmAlertWakeLock
 {
-	private static KeyguardManager sKeyguardManager;
-	private static KeyguardManager.KeyguardLock sKeyguardLock = null;
 	private static PowerManager.WakeLock sWakeLock;
 
 	static void acquire(Context context)
@@ -38,16 +35,8 @@ class AlarmAlertWakeLock
 		
 		sWakeLock = pm.newWakeLock(PowerManager.FULL_WAKE_LOCK | PowerManager.ACQUIRE_CAUSES_WAKEUP | PowerManager.ON_AFTER_RELEASE, "com.koushikdutta.klaxon");
 		sWakeLock.acquire();
-		disableKeyguard(context);
 	}
 	
-	static void disableKeyguard(Context context)
-	{
-		sKeyguardManager = (KeyguardManager) context.getSystemService(Context.KEYGUARD_SERVICE);
-		sKeyguardLock = sKeyguardManager.newKeyguardLock("com.koushikdutta.klaxon");
-		sKeyguardLock.disableKeyguard();
-	}
-
 	static void acquirePartial(Context context)
 	{
 		release();
@@ -56,8 +45,6 @@ class AlarmAlertWakeLock
 
 		sWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK | PowerManager.ACQUIRE_CAUSES_WAKEUP | PowerManager.ON_AFTER_RELEASE, "com.koushikdutta.klaxon");
 		sWakeLock.acquire();
-
-		disableKeyguard(context);
 	}
 
 	static void release()
@@ -66,12 +53,6 @@ class AlarmAlertWakeLock
 		{
 			sWakeLock.release();
 			sWakeLock = null;
-		}
-
-		if (sKeyguardLock != null)
-		{
-			sKeyguardLock.reenableKeyguard();
-			sKeyguardLock = null;
 		}
 	}
 }

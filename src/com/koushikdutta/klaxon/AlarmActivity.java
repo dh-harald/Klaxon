@@ -4,6 +4,7 @@ import java.util.Calendar;
 import java.util.GregorianCalendar;
 
 import android.app.Activity;
+import android.app.KeyguardManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -43,6 +44,8 @@ public class AlarmActivity extends Activity
 	boolean mVibrateEnabled = true;
 	final static String LOGTAG = "Klaxon";
 	SQLiteDatabase mDatabase;
+	private KeyguardManager mKeyguardManager;
+	private KeyguardManager.KeyguardLock mKeyguardLock = null;
 
 	static boolean isFlat(int orientation)
 	{
@@ -141,6 +144,17 @@ public class AlarmActivity extends Activity
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.alarmalertactivity);
 
+		try
+		{
+			// this is a fix for Cyanogen mod which integrates crap from donut.
+			//  getWindow().addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED);
+			getWindow().addFlags(0x00080000);
+		}
+		catch(Exception ex)
+		{
+		}
+        mKeyguardManager = (KeyguardManager) getSystemService(Context.KEYGUARD_SERVICE);
+		
 		Intent intent = getIntent();
 
 		mVibrator = (Vibrator) getSystemService(VIBRATOR_SERVICE);
@@ -248,6 +262,8 @@ public class AlarmActivity extends Activity
 
 	void snoozeAlarm()
 	{
+		Log.i(LOGTAG, "snoozeAlarm");
+
 		if (mSnoozeTime == 0)
 			return;
 		Log.i(LOGTAG, "Snoozing alarm.");
@@ -267,6 +283,7 @@ public class AlarmActivity extends Activity
 
 	void stopNotification()
 	{
+		Log.i(LOGTAG, "stopNotification");
 		AlarmAlertWakeLock.release();
 		mVibrator.cancel();
 		mStopVolumeAdjustThread = true;
@@ -313,6 +330,7 @@ public class AlarmActivity extends Activity
 
 	void resumeAlarm()
 	{
+		disableKeyguard();
 		unregisterSensorListener();
 		//
 		//		mListener = new SensorListener()
@@ -445,12 +463,13 @@ public class AlarmActivity extends Activity
 		};
 		mSensorManager.registerListener(mListener, SensorManager.SENSOR_MAGNETIC_FIELD);
 
-		final int streamMaxVolume = mAudioManager.getStreamMaxVolume(AUDIO_STREAM);
-		final int volumeRamp = mSettings.getVolumeRamp();
-		final int maxVolume = mSettings.getVolume();
+		final double streamMaxVolume = mAudioManager.getStreamMaxVolume(AUDIO_STREAM);
+		final double volumeRamp = mSettings.getVolumeRamp();
+		final double maxVolume = mSettings.getVolume();
 		if (volumeRamp == 0)
 		{
-			mAudioManager.setStreamVolume(AUDIO_STREAM, maxVolume, 0);
+			double convertedVolume = streamMaxVolume * maxVolume / 100d;
+			mAudioManager.setStreamVolume(AUDIO_STREAM, (int)convertedVolume, 0);
 		}
 		else
 		{
@@ -460,26 +479,42 @@ public class AlarmActivity extends Activity
 			{
 				public void run()
 				{
-					int curVolume = 0;
-					int volumeStep = maxVolume / volumeRamp;
-					for (int i = 0; i < volumeRamp; i++)
+					try
 					{
-						try
+						Log.i(LOGTAG, "Volume thread starting.");
+						double curVolume = 0;
+						double volumeStep = maxVolume / volumeRamp;
+						for (int i = 0; i < volumeRamp; i++)
 						{
-							Thread.sleep(1000);
-							if (mStopVolumeAdjustThread)
-								break;
+							try
+							{
+								Thread.sleep(1000);
+								if (mStopVolumeAdjustThread)
+								{
+									Log.i(LOGTAG, "Volume thread interrupted!");
+									break;
+								}
+							}
+							catch (InterruptedException e)
+							{
+							}
+							Log.i(LOGTAG, "Stepping volume");
+							curVolume += volumeStep;
+							double convertedVolume = streamMaxVolume * curVolume / 100d;
+							mAudioManager.setStreamVolume(AUDIO_STREAM, (int)convertedVolume, 0);
 						}
-						catch (InterruptedException e)
-						{
-						}
-						curVolume += volumeStep;
-						int convertedVolume = streamMaxVolume * curVolume / 100;
-						mAudioManager.setStreamVolume(AUDIO_STREAM, convertedVolume, 0);
+	
+						double convertedVolume = streamMaxVolume * maxVolume / 100d;
+						mAudioManager.setStreamVolume(AUDIO_STREAM, (int)convertedVolume, 0);
 					}
-
-					int convertedVolume = streamMaxVolume * maxVolume / 100;
-					mAudioManager.setStreamVolume(AUDIO_STREAM, convertedVolume, 0);
+					catch (Exception ex)
+					{
+						ex.printStackTrace();
+					}
+					finally
+					{
+						Log.i(LOGTAG, "Volume thread exiting.");
+					}
 				}
 			}).start();
 		}
@@ -499,6 +534,7 @@ public class AlarmActivity extends Activity
 
 	void cleanupAlarm()
 	{
+		Log.i(LOGTAG, "cleanupAlarm");
 		mStopVolumeAdjustThread = true;
 		unregisterSensorListener();
 		mVibrator.cancel();
@@ -517,6 +553,8 @@ public class AlarmActivity extends Activity
 	{
 		super.onDestroy();
 		cleanupAlarm();
+		enableKeyguard();
+		mDatabase.close();
 	}
 
 	@Override
@@ -530,6 +568,38 @@ public class AlarmActivity extends Activity
 	protected void onPause()
 	{
 		super.onPause();
-		stopNotification();
+		Log.i(LOGTAG, "onPause");
 	}
+	
+    private synchronized void enableKeyguard() {
+        if (mKeyguardLock != null) {
+            mKeyguardLock.reenableKeyguard();
+            mKeyguardLock = null;
+        }
+    }
+
+    private synchronized void disableKeyguard() {
+        if (mKeyguardLock == null) {
+            mKeyguardLock = mKeyguardManager.newKeyguardLock(LOGTAG);
+            mKeyguardLock.disableKeyguard();
+        }
+    }
+    
+    @Override
+    protected void onResume() {
+    	Log.i(LOGTAG, "onResume");
+    	super.onResume();
+    }
+    
+    @Override
+    protected void onStop() {
+    	Log.i(LOGTAG, "onStop");
+		stopNotification();
+		super.onStop();
+    }
+    
+    protected void onStart() {
+    	Log.i(LOGTAG, "onStart");
+    	super.onStart();
+    };
 }
