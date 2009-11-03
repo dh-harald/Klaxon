@@ -312,12 +312,14 @@ public class AlarmEditActivity extends PreferenceActivity
 						public void onClick(View v)
 						{
 							dismiss();
-							Intent intent = new Intent(AlarmEditActivity.this, TrackBrowserActivity.class);
+							Intent intent = new Intent();
+							intent.setAction(Intent.ACTION_PICK);
+							intent.setClassName("com.android.music", "com.android.music.MusicPicker");
+							intent.setData(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI);
 							Uri ringtone = mSettings.getRingtone();
 							if (ringtone != null)
 							{
-								String titleUri = ringtone.toString();
-								intent.putExtra("TitleUri", titleUri);
+								intent.putExtra(RingtoneManager.EXTRA_RINGTONE_EXISTING_URI, ringtone);
 							}
 							startActivityForResult(intent, REQUEST_MUSIC);
 						}
@@ -408,10 +410,10 @@ public class AlarmEditActivity extends PreferenceActivity
 		{
 			if (data != null)
 			{
-				String uri = data.getStringExtra("TitleUri");
+				Uri uri = data.getData();
 				if (uri != null)
 				{
-					mSettings.setRingtone(Uri.parse(uri));
+					mSettings.setRingtone(uri);
 					mSettings.update();
 					refreshRingtoneSummary();
 				}
