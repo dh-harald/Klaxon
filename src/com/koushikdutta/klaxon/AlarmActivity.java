@@ -10,6 +10,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.database.sqlite.SQLiteDatabase;
+import android.hardware.Sensor;
 import android.hardware.SensorListener;
 import android.hardware.SensorManager;
 import android.media.AudioManager;
@@ -332,136 +333,140 @@ public class AlarmActivity extends Activity
 	{
 		disableKeyguard();
 		unregisterSensorListener();
-		//
-		//		mListener = new SensorListener()
-		//		{
-		//			long mSensorReadingStart = new GregorianCalendar().getTimeInMillis() + 2000;
-		//			boolean mShouldReadSensor = false;
-		//			int mFlatOrientation = -1;
-		//			int mLastOrientation = -1;
-		//			long mOrientationFlipStart = 0;
-		//			int mOrientationLog[] = new int[15];
-		//			float mVectorLengthSqLog[] = new float[15];
-		//			int mSampleCount = 0;
-		//
-		//			@Override
-		//			public void onAccuracyChanged(int sensor, int accuracy)
-		//			{
-		//			}
-		//
-		//			public float getAverageVecLenSq()
-		//			{
-		//				float ret = 0;
-		//				for (int i = 0; i < mVectorLengthSqLog.length; i++)
-		//				{
-		//					ret += mVectorLengthSqLog[i];
-		//				}
-		//				return ret / mVectorLengthSqLog.length;
-		//			}
-		//
-		//			public int getPrimaryOrientation()
-		//			{
-		//				int orientations[] = new int[6];
-		//				int curMax = 0;
-		//				for (int i = 0; i < mOrientationLog.length; i++)
-		//				{
-		//					int logOrientation = mOrientationLog[i];
-		//					if (logOrientation != -1)
-		//					{
-		//						int orientationCount = ++orientations[logOrientation];
-		//						if (orientationCount > orientations[curMax])
-		//							curMax = logOrientation;
-		//					}
-		//				}
-		//				return curMax;
-		//			}
-		//
-		//			@Override
-		//			public void onSensorChanged(int sensor, float[] values)
-		//			{
-		//				float x = values[0];
-		//				float y = -values[1];
-		//				float z = values[2];
-		//				float vecLenSq = x * x + y * y + z * z;
-		//				int newOrientation = toOrientation(x, y, z);
-		//				mOrientationLog[mSampleCount % mOrientationLog.length] = newOrientation;
-		//				mVectorLengthSqLog[mSampleCount % mVectorLengthSqLog.length] = vecLenSq;
-		//				mSampleCount++;
-		//
-		//				if (mSampleCount < mOrientationLog.length)
-		//					return;
-		//
-		//				int primaryOrientation = getPrimaryOrientation();
-		//				if (!isFlat(mFlatOrientation))
-		//				{
-		//					if (isFlat(primaryOrientation))
-		//						mFlatOrientation = primaryOrientation;
-		//				}
-		//
-		//				if (isFlat(primaryOrientation) && primaryOrientation != mFlatOrientation)
-		//				{
-		//					onFlipAction();
-		//					mFlatOrientation = primaryOrientation;
-		//				}
-		//			}
-		//		};
-		//mSensorManager.registerListener(mListener, SensorManager.SENSOR_ACCELEROMETER);
-
-		mListener = new SensorListener()
-		{
-			int mLastFlatOrientation = -1;
-			long mLastFlatOrientationTime = 0;
-			int mCurrentFlatOrientation = -1;
-
-			public void onAccuracyChanged(int sensor, int accuracy)
+		Sensor compass = mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
+		
+		if (compass == null)
+		{		
+			mListener = new SensorListener()
 			{
-			}
-
-			float[] normalize(float[] values)
-			{
-				float len = (float) Math.sqrt(values[0] * values[0] + values[1] * values[1] + values[2] * values[2]);
-				float[] ret = new float[3];
-				ret[0] = values[0] / len;
-				ret[1] = values[1] / len;
-				ret[2] = values[2] / len;
-				return ret;
-			}
-
-			public void onSensorChanged(int sensor, float[] values)
-			{
-				float[] norm = normalize(values);
-				int orientation = toOrientation2(norm[0], norm[1], norm[2]);
-
-				// see if the orientation has changed since the last time
-				// and log the change
-				if (mLastFlatOrientation != orientation && isFlat(orientation))
+				long mSensorReadingStart = new GregorianCalendar().getTimeInMillis() + 2000;
+				boolean mShouldReadSensor = false;
+				int mFlatOrientation = -1;
+				int mLastOrientation = -1;
+				long mOrientationFlipStart = 0;
+				int mOrientationLog[] = new int[15];
+				float mVectorLengthSqLog[] = new float[15];
+				int mSampleCount = 0;
+	
+				public void onAccuracyChanged(int sensor, int accuracy)
 				{
-					mLastFlatOrientation = orientation;
-					mLastFlatOrientationTime = System.currentTimeMillis();
 				}
-
-				// if there is no current orientation, and there is a last orientation, use that.
-				if (mCurrentFlatOrientation == -1 && mLastFlatOrientation != -1)
+	
+				public float getAverageVecLenSq()
+				{
+					float ret = 0;
+					for (int i = 0; i < mVectorLengthSqLog.length; i++)
+					{
+						ret += mVectorLengthSqLog[i];
+					}
+					return ret / mVectorLengthSqLog.length;
+				}
+	
+				public int getPrimaryOrientation()
+				{
+					int orientations[] = new int[6];
+					int curMax = 0;
+					for (int i = 0; i < mOrientationLog.length; i++)
+					{
+						int logOrientation = mOrientationLog[i];
+						if (logOrientation != -1)
+						{
+							int orientationCount = ++orientations[logOrientation];
+							if (orientationCount > orientations[curMax])
+								curMax = logOrientation;
+						}
+					}
+					return curMax;
+				}
+	
+				public void onSensorChanged(int sensor, float[] values)
+				{
+					float x = values[0];
+					float y = -values[1];
+					float z = values[2];
+					float vecLenSq = x * x + y * y + z * z;
+					int newOrientation = toOrientation(x, y, z);
+					mOrientationLog[mSampleCount % mOrientationLog.length] = newOrientation;
+					mVectorLengthSqLog[mSampleCount % mVectorLengthSqLog.length] = vecLenSq;
+					mSampleCount++;
+	
+					if (mSampleCount < mOrientationLog.length)
+						return;
+	
+					int primaryOrientation = getPrimaryOrientation();
+					if (!isFlat(mFlatOrientation))
+					{
+						if (isFlat(primaryOrientation))
+							mFlatOrientation = primaryOrientation;
+					}
+	
+					if (isFlat(primaryOrientation) && primaryOrientation != mFlatOrientation)
+					{
+						onFlipAction();
+						mFlatOrientation = primaryOrientation;
+					}
+				}
+			};
+			mSensorManager.registerListener(mListener, SensorManager.SENSOR_ACCELEROMETER);
+		}
+		else
+		{
+			mListener = new SensorListener()
+			{
+				int mLastFlatOrientation = -1;
+				long mLastFlatOrientationTime = 0;
+				int mCurrentFlatOrientation = -1;
+	
+				public void onAccuracyChanged(int sensor, int accuracy)
+				{
+				}
+	
+				float[] normalize(float[] values)
+				{
+					float len = (float) Math.sqrt(values[0] * values[0] + values[1] * values[1] + values[2] * values[2]);
+					float[] ret = new float[3];
+					ret[0] = values[0] / len;
+					ret[1] = values[1] / len;
+					ret[2] = values[2] / len;
+					return ret;
+				}
+	
+				public void onSensorChanged(int sensor, float[] values)
+				{
+					float[] norm = normalize(values);
+					int orientation = toOrientation2(norm[0], norm[1], norm[2]);
+	
+					// see if the orientation has changed since the last time
+					// and log the change
+					if (mLastFlatOrientation != orientation && isFlat(orientation))
+					{
+						mLastFlatOrientation = orientation;
+						mLastFlatOrientationTime = System.currentTimeMillis();
+					}
+	
+					// if there is no current orientation, and there is a last orientation, use that.
+					if (mCurrentFlatOrientation == -1 && mLastFlatOrientation != -1)
+						mCurrentFlatOrientation = mLastFlatOrientation;
+	
+					// if there is no current orientation, return
+					if (mCurrentFlatOrientation == -1)
+						return;
+	
+					// if our last orientation change was less than a second ago, return
+					if (mLastFlatOrientationTime > System.currentTimeMillis() - 1000)
+						return;
+	
+					// if the orientations are the same, return
+					if (mLastFlatOrientation == mCurrentFlatOrientation)
+						return;
+	
+					// since we are here, it means that the orientation has changed for over a second
 					mCurrentFlatOrientation = mLastFlatOrientation;
-
-				// if there is no current orientation, return
-				if (mCurrentFlatOrientation == -1)
-					return;
-
-				// if our last orientation change was less than a second ago, return
-				if (mLastFlatOrientationTime > System.currentTimeMillis() - 1000)
-					return;
-
-				// if the orientations are the same, return
-				if (mLastFlatOrientation == mCurrentFlatOrientation)
-					return;
-
-				// since we are here, it means that the orientation has changed for over a second
-				mCurrentFlatOrientation = mLastFlatOrientation;
-				onFlipAction();
-			}
-		};
-		mSensorManager.registerListener(mListener, SensorManager.SENSOR_MAGNETIC_FIELD);
+					onFlipAction();
+				}
+			};
+			mSensorManager.registerListener(mListener, SensorManager.SENSOR_MAGNETIC_FIELD);
+		}
 
 		final double streamMaxVolume = mAudioManager.getStreamMaxVolume(AUDIO_STREAM);
 		final double volumeRamp = mSettings.getVolumeRamp();

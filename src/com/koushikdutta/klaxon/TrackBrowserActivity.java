@@ -82,6 +82,7 @@ public class TrackBrowserActivity extends ListActivity
 						String oldUriString = mCurrentUri;
 						String localUriString = mCurrentUri = uriString;
 						mIntent.putExtra("TitleUri", uriString);
+						mIntent.setData(uri);
 						// don't start the player if it is null; that implies that the sound is being selected upon init
 						if (mMediaPlayer != null)
 						{

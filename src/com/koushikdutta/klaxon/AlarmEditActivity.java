@@ -312,16 +312,30 @@ public class AlarmEditActivity extends PreferenceActivity
 						public void onClick(View v)
 						{
 							dismiss();
-							Intent intent = new Intent();
-							intent.setAction(Intent.ACTION_PICK);
-							intent.setClassName("com.android.music", "com.android.music.MusicPicker");
-							intent.setData(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI);
-							Uri ringtone = mSettings.getRingtone();
-							if (ringtone != null)
+							try
 							{
-								intent.putExtra(RingtoneManager.EXTRA_RINGTONE_EXISTING_URI, ringtone);
+								Intent intent = new Intent();
+								intent.setAction(Intent.ACTION_PICK);
+								intent.setClassName("com.android.music", "com.android.music.MusicPicker");
+								intent.setData(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI);
+								Uri ringtone = mSettings.getRingtone();
+								if (ringtone != null)
+								{
+									intent.putExtra(RingtoneManager.EXTRA_RINGTONE_EXISTING_URI, ringtone);
+								}
+								startActivityForResult(intent, REQUEST_MUSIC);
 							}
-							startActivityForResult(intent, REQUEST_MUSIC);
+							catch (Exception ex)
+							{
+								Intent intent = new Intent(AlarmEditActivity.this, TrackBrowserActivity.class);
+								Uri ringtone = mSettings.getRingtone();
+								if (ringtone != null)
+								{
+								    String titleUri = ringtone.toString();
+								    intent.putExtra("TitleUri", titleUri);
+								}
+								startActivityForResult(intent, REQUEST_MUSIC);
+							}
 						}
 					});
 				}
@@ -439,7 +453,13 @@ public class AlarmEditActivity extends PreferenceActivity
 				{
 					c.moveToNext();
 					int titleIndex = c.getColumnIndex(MediaStore.Audio.Media.TITLE);
-					mRingtonePref.setSummary(c.getString(titleIndex));
+					try
+					{
+						mRingtonePref.setSummary(c.getString(titleIndex));
+					}
+					catch(Exception ex)
+					{
+					}
 					startManagingCursor(c);
 				}
 			}
