@@ -1,5 +1,6 @@
 package com.koushikdutta.klaxon;
 
+import java.text.DateFormatSymbols;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -287,4 +288,57 @@ public class AlarmSettings extends AlarmSettingsBase {
 	{
 		Gen_update(mDatabase);
 	}
+	
+	
+    private static int[] DAY_MAP = new int[] {
+        Calendar.MONDAY,
+        Calendar.TUESDAY,
+        Calendar.WEDNESDAY,
+        Calendar.THURSDAY,
+        Calendar.FRIDAY,
+        Calendar.SATURDAY,
+        Calendar.SUNDAY,
+    };
+    
+    public String getDaysOfWeekString(Context context, boolean showNever) {
+        StringBuilder ret = new StringBuilder();
+
+        
+        int alarmDaysInt = getAlarmDaysBase();
+        
+        // no days
+        if (alarmDaysInt == 0) {
+            return showNever ?
+                    context.getText(R.string.never).toString() : "";
+        }
+
+        // every day
+        if (alarmDaysInt == 0x7f) {
+            return context.getText(R.string.every_day).toString();
+        }
+
+        // count selected days
+        int dayCount = 0, days = alarmDaysInt;
+        while (days > 0) {
+            if ((days & 1) == 1) dayCount++;
+            days >>= 1;
+        }
+
+        // short or long form?
+        DateFormatSymbols dfs = new DateFormatSymbols();
+        String[] dayList = (dayCount > 1) ?
+                dfs.getShortWeekdays() :
+                dfs.getWeekdays();
+
+        // selected days
+        for (int i = 0; i < 7; i++) {
+            if ((alarmDaysInt & (1 << i)) != 0) {
+                ret.append(dayList[DAY_MAP[i]]);
+                dayCount -= 1;
+                if (dayCount > 0) ret.append(
+                        context.getText(R.string.day_concat));
+            }
+        }
+        return ret.toString();
+    }
 }

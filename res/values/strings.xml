@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
 	<string name="app_name">Klaxon</string>
 	<string name="clock_name">Bed Clock</string>
 	<string name="no_alarm_set">No Alarm Set</string>
@@ -37,4 +37,63 @@
 		<item>50 seconds</item>
 		<item>60 seconds</item>
 	</string-array>
+	
+	
+    <!-- Repeat options that appear under an alarm on main Alarm Clock
+         screen to identify repetition schedule: concatenate days with
+         this character, i.e. "Mon, Tue, Wed" -->
+    <string name="day_concat">", "</string>
+	
+    <!-- Repeat options that appear under an alarm on main Alarm Clock
+         screen to identify repetition schedule: special case for when
+         the alarm is set to repeat every day -->
+    <string name="every_day">every day</string>
+
+    <!-- Repeat options that appear under an alarm on main Alarm Clock
+         screen to identify repetition schedule: special case for when
+         the alarm is set to never repeat -->
+    <string name="never">Never</string>
+
+	<!-- Accessibility labels for Clock activity buttons --><skip/>
+    <string name="alarm_button_description">Alarms</string>
+    <string name="gallery_button_description">Gallery</string>
+    <string name="music_button_description">Music</string>
+    <string name="nightmode_button_description">Dim</string>
+    <string name="home_button_description">Launcher</string>
+    <string name="desk_clock_button_description">Clock Display</string>
+    
+    <!-- A short representation of charging information, e.g "34%" -->
+    <string name="battery_charging_level"><xliff:g id="number">%d</xliff:g><xliff:g id="percent">%%</xliff:g></string>
+
+    <!-- What to show the user if the weather widget exists but fails to
+         respond. This is a sign of an error; if the weather widget is not
+         present on the device, we show nothing at all. -->
+    <string name="weather_fetch_failure">Weather information currently unavailable.</string>
+    
+    <!-- Title for AlarmClock activity -->
+    <string name="alarm_list_title">Alarms</string>
+
+    <!-- Menu item on Alarm Clock screen: Add alarm -->
+    <string name="add_alarm">Add alarm</string>
+
+    <!-- Menu item on Alarm Clock screen: Desk clock -->
+    <string name="menu_desk_clock">Desk clock</string>
+
+    <!-- Menu item on Alarm Clock screen: Edit alarm -->
+    <string name="menu_edit_alarm">Edit alarm</string>
+
+    <!-- Context Menu Item on Alarm Settings screen: Delete alarm -->
+    <string name="delete_alarm">Delete alarm</string>
+    
+    <!-- Context Menu Item on Alarm Settings screen: Enable alarm -->
+    <string name="enable_alarm">Turn alarm on</string>
+
+    <!-- Context Menu Item on Alarm Settings screen: Disable alarm -->
+    <string name="disable_alarm">Turn alarm off</string>
+    
+    <!-- Delete alarm confirmation dialog message. -->
+    <string name="delete_alarm_confirm">This alarm will be deleted.</string>
+    
+    <!-- Menu item title for general Alarm Clock Settings -->
+    <string name="settings">Settings</string>
 </resources>
