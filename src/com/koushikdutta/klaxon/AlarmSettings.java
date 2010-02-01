@@ -188,8 +188,6 @@ public class AlarmSettings extends AlarmSettingsBase {
 		GregorianCalendar now = new GregorianCalendar(Locale.getDefault());
 
 		long nextSnooze = getNextSnooze();
-		if (nextSnooze > now.getTimeInMillis())
-			return nextSnooze;
 
 		GregorianCalendar first = new GregorianCalendar(now.get(Calendar.YEAR), now.get(Calendar.MONTH), now.get(Calendar.DAY_OF_MONTH), getHour(), getMinutes(), 0);
 		if (first.before(now))
@@ -203,6 +201,8 @@ public class AlarmSettings extends AlarmSettingsBase {
 			int day = (cur.get(Calendar.DAY_OF_WEEK) - 2 + 7) % 7;
 			if (!daysOfWeek[day] && hasDays)
 				continue;
+			if (nextSnooze > now.getTimeInMillis() && nextSnooze < cur.getTimeInMillis())
+				return nextSnooze;
 			return cur.getTimeInMillis();
 		}
 		return null;

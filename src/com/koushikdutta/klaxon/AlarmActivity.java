@@ -3,7 +3,6 @@ package com.koushikdutta.klaxon;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 
-import android.app.Activity;
 import android.app.KeyguardManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -21,18 +20,15 @@ import android.os.Handler;
 import android.os.Vibrator;
 import android.util.Log;
 import android.view.KeyEvent;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
-import android.widget.LinearLayout;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 
-public class AlarmActivity extends Activity
+public class AlarmActivity extends DeskClock
 {
-	TextView mSnoozeTimeText;
 	AlarmSettings mSettings;
 	MediaPlayer mPlayer;
 	Handler mHandler = new Handler();
@@ -42,6 +38,7 @@ public class AlarmActivity extends Activity
 	int mSnoozeTime;
 	GregorianCalendar mExpireTime;
 	MenuItem mOffMenuItem;
+	TextView mNextAlarm;
 	Vibrator mVibrator;
 	boolean mVibrateEnabled = true;
 	final static String LOGTAG = "Klaxon";
@@ -133,19 +130,31 @@ public class AlarmActivity extends Activity
 		@Override
 		public void onReceive(Context context, Intent intent)
 		{
-			refreshSnoozeTimer();
+			refreshNextAlarmText();
 			GregorianCalendar now = new GregorianCalendar();
 			if (mExpireTime != null && mExpireTime.before(now))
 				finish();
 		}
 	};
 
+	void init()
+	{
+		if (mDatabase == null)
+		{
+			Intent intent = getIntent();
+			long alarmId = intent.getLongExtra(AlarmSettings.GEN_FIELD__id, -1);
+			mDatabase = AlarmSettings.getDatabase(this);
+			mSettings = AlarmSettings.getAlarmSettingsById(this, mDatabase, alarmId);
+			mKlaxonSettings = new KlaxonSettings(this);
+			mSnoozeTime = mSettings.getSnoozeTime();
+		}
+	}
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
+		init();
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.alarmalertactivity);
-
 		try
 		{
 			// this is a fix for Cyanogen mod which integrates crap from donut.
@@ -156,44 +165,14 @@ public class AlarmActivity extends Activity
 		{
 		}
         mKeyguardManager = (KeyguardManager) getSystemService(Context.KEYGUARD_SERVICE);
-		
-		Intent intent = getIntent();
-
 		mVibrator = (Vibrator) getSystemService(VIBRATOR_SERVICE);
-		long alarmId = intent.getLongExtra(AlarmSettings.GEN_FIELD__id, -1);
-		mDatabase = AlarmSettings.getDatabase(this);
-		mSettings = AlarmSettings.getAlarmSettingsById(this, mDatabase, alarmId);
-		mKlaxonSettings = new KlaxonSettings(this);
-		mSnoozeTime = mSettings.getSnoozeTime();
-
+		
 		String name = mSettings.getName();
 		if (name != null && !"".equals(name))
 			setTitle(name);
 
 		mVibrateEnabled = mSettings.getVibrateEnabled();
 		prepareAlarm();
-
-		LinearLayout clockLayout = (LinearLayout) findViewById(R.id.ClockLayout);
-		LayoutInflater inflater = LayoutInflater.from(this);
-		KlaxonSettings klaxonSettings = new KlaxonSettings(this);
-		inflater.inflate(klaxonSettings.getClockFace(), clockLayout);
-
-		mSnoozeTimeText = (TextView) findViewById(R.id.SnoozeTime);
-
-		Button snoozeButton = (Button) findViewById(R.id.SnoozeButton);
-		snoozeButton.setOnClickListener(new View.OnClickListener()
-		{
-			public void onClick(View v)
-			{
-				snoozeAlarm();
-			}
-		});
-
-		if (mSettings.getSnoozeTime() == 0)
-		{
-			snoozeButton.setVisibility(View.INVISIBLE);
-			mSnoozeTimeText.setVisibility(View.INVISIBLE);
-		}
 
 		mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
 
@@ -206,6 +185,51 @@ public class AlarmActivity extends Activity
 
 		mAudioManager = (AudioManager) getSystemService(AUDIO_SERVICE);
 		resumeAlarm();
+	}
+	
+	void refreshNextAlarmText()
+	{
+		GregorianCalendar now = new GregorianCalendar();
+		if (mSnoozeEnd == null || now.after(mSnoozeEnd))
+		{
+			mNextAlarm.setText(mSettings.getName());
+			return;
+		}
+
+		long msLeft = mSnoozeEnd.getTimeInMillis() - now.getTimeInMillis();
+		int minutesLeft = Math.round((float) msLeft / 1000f / 60f);
+		mNextAlarm.setText(String.format("Snoozing: %d minutes", minutesLeft));		
+	}
+	
+	protected void refreshAlarm()
+	{
+		refreshNextAlarmText();
+	}
+	
+	@Override
+	protected void initViews() {
+		super.initViews();
+		
+		findViewById(R.id.desk_clock_buttons).setVisibility(View.GONE);
+		findViewById(R.id.desk_clock_alarm_buttons).setVisibility(View.VISIBLE);
+		
+		ImageButton snoozeButton = (ImageButton) findViewById(R.id.snooze_button);
+		snoozeButton.setOnClickListener(new View.OnClickListener()
+		{
+			public void onClick(View v)
+			{
+				snoozeAlarm();
+			}
+		});
+
+		if (mSnoozeTime == 0)
+		{
+			snoozeButton.setVisibility(View.INVISIBLE);
+		}
+		
+        findViewById(R.id.weather).setOnClickListener(null);
+        findViewById(R.id.nextAlarm).setOnClickListener(null);
+        mNextAlarm = (TextView) findViewById(R.id.nextAlarm);
 	}
 
 	void stopAlarm()
@@ -226,7 +250,7 @@ public class AlarmActivity extends Activity
 	{
 		mOffMenuItem = menu.add(0, 0, 0, "Turn Off Alarm");
 		mOffMenuItem.setIcon(android.R.drawable.ic_menu_close_clear_cancel);
-		return super.onCreateOptionsMenu(menu);
+		return true;
 	}
 
 	@Override
@@ -275,12 +299,13 @@ public class AlarmActivity extends Activity
 		mExpireTime = null;
 		mSnoozeEnd = new GregorianCalendar();
 		mSnoozeEnd.add(Calendar.MINUTE, mSnoozeTime);
-		refreshSnoozeTimer();
+		refreshNextAlarmText();
 		AlarmAlertWakeLock.acquirePartial(this);
 		mSettings.setNextSnooze(mSnoozeEnd.getTimeInMillis());
 		mSettings.setEnabled(true);
 		mSettings.update();
 		AlarmSettings.scheduleNextAlarm(this);
+		refreshAlarm();
 	}
 
 	void stopNotification()
@@ -305,20 +330,6 @@ public class AlarmActivity extends Activity
 		{
 			Log.i(LOGTAG, "Not snoozing alarm- already snoozing.");
 		}
-	}
-
-	void refreshSnoozeTimer()
-	{
-		GregorianCalendar now = new GregorianCalendar();
-		if (mSnoozeEnd == null || now.after(mSnoozeEnd))
-		{
-			mSnoozeTimeText.setText("");
-			return;
-		}
-
-		long msLeft = mSnoozeEnd.getTimeInMillis() - now.getTimeInMillis();
-		int minutesLeft = Math.round((float) msLeft / 1000f / 60f);
-		mSnoozeTimeText.setText(String.format("Snoozing: %d minutes", minutesLeft));
 	}
 
 	void unregisterSensorListener()
@@ -533,7 +544,7 @@ public class AlarmActivity extends Activity
 		mExpireTime.add(Calendar.MINUTE, EXPIRE_TIME);
 		mPlayer.start();
 		mPlayer.seekTo(0);
-		refreshSnoozeTimer();
+		refreshNextAlarmText();
 	}
 
 	boolean mStopVolumeAdjustThread = false;
@@ -564,14 +575,14 @@ public class AlarmActivity extends Activity
 	}
 
 	@Override
-	protected void onNewIntent(Intent intent)
+	public void onNewIntent(Intent intent)
 	{
 		super.onNewIntent(intent);
 		resumeAlarm();
 	}
 
 	@Override
-	protected void onPause()
+	public void onPause()
 	{
 		super.onPause();
 		Log.i(LOGTAG, "onPause");
@@ -592,13 +603,13 @@ public class AlarmActivity extends Activity
     }
     
     @Override
-    protected void onResume() {
+    public void onResume() {
     	Log.i(LOGTAG, "onResume");
     	super.onResume();
     }
     
     @Override
-    protected void onStop() {
+    public void onStop() {
     	Log.i(LOGTAG, "onStop");
 		stopNotification();
 		super.onStop();

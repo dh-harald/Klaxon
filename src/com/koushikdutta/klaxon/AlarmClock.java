@@ -174,7 +174,8 @@ public class AlarmClock extends Activity implements OnItemClickListener {
                                 new DialogInterface.OnClickListener() {
                                     public void onClick(DialogInterface d,
                                             int w) {
-                                    	AlarmSettings.getAlarmSettingsById(AlarmClock.this, id).delete();
+                                    	AlarmSettings.getAlarmSettingsById(AlarmClock.this, mDatabase, id).delete();
+                                    	mCursor.requery();
                                     }
                                 })
                         .setNegativeButton(android.R.string.cancel, null)
@@ -228,6 +229,7 @@ public class AlarmClock extends Activity implements OnItemClickListener {
         			AlarmSettings settings = new AlarmSettings(AlarmClock.this, mDatabase);
         			settings.insert();
         			EditAlarm(settings.get_Id());
+                	mCursor.requery();
         		}
             });
         // Make the entire view selected when focused.
@@ -305,7 +307,8 @@ public class AlarmClock extends Activity implements OnItemClickListener {
     			AlarmSettings settings = new AlarmSettings(AlarmClock.this, mDatabase);
     			settings.insert();
     			EditAlarm(settings.get_Id());
-                return true;
+            	mCursor.requery();
+            	return true;
             default:
                 break;
         }
@@ -320,5 +323,11 @@ public class AlarmClock extends Activity implements OnItemClickListener {
 
     public void onItemClick(AdapterView parent, View v, int pos, long id) {
     	EditAlarm(id);
+    }
+    
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    	super.onActivityResult(requestCode, resultCode, data);
+    	mCursor.requery();
     }
 }

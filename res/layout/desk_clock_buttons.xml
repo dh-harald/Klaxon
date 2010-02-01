@@ -19,6 +19,7 @@
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
     android:layout_weight="0"
+    android:id="@+id/desk_clock_buttons"
     >
     <ImageButton android:id="@+id/alarm_button"
 		style="@style/ButtonStripLeft"

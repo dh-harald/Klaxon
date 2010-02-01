@@ -467,7 +467,7 @@ public class DeskClock extends Activity {
         mDate.setText(DateFormat.format(mDateFormat, now));
     }
 
-    private void refreshAlarm() {
+    protected void refreshAlarm() {
         if (mNextAlarm == null) return;
 
         String nextAlarm = Settings.System.getString(getContentResolver(),
@@ -609,7 +609,7 @@ public class DeskClock extends Activity {
         super.onStop();
     }
 
-    private void initViews() {
+    protected void initViews() {
     	WallpaperHelper.setWindowBackground(this);
         
         // give up any internal focus before we switch layouts
