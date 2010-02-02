@@ -39,6 +39,7 @@ import com.koushikdutta.klaxon.VolumeRampPreference.OnVolumeRampChangeListener;
 public class AlarmEditActivity extends PreferenceActivity
 {
 	MenuItem mDeleteAlarm;
+	MenuItem mTestAlarm;
 	AlarmSettings mSettings;
 	Preference mTimePref;
 	Preference mRingtonePref;
@@ -193,6 +194,9 @@ public class AlarmEditActivity extends PreferenceActivity
 	{
 		mDeleteAlarm = menu.add(0, 0, 0, "Delete Alarm");
 		mDeleteAlarm.setIcon(android.R.drawable.ic_menu_delete);
+		
+		mTestAlarm = menu.add(0, 0, 0, "Test Alarm");
+		mTestAlarm.setIcon(R.drawable.ic_menu_clock_face);
 
 		return super.onCreateOptionsMenu(menu);
 	}
@@ -206,6 +210,12 @@ public class AlarmEditActivity extends PreferenceActivity
 			Intent ret = getIntent();
 			ret.putExtra("Deleted", true);
 			finish();
+		}
+		else if (item == mTestAlarm)
+		{
+			Intent i = new Intent(this, AlarmActivity.class);
+			i.putExtra(AlarmSettings.GEN_FIELD__ID, mSettings.get_Id());
+			startActivity(i);
 		}
 
 		return super.onMenuItemSelected(featureId, item);
