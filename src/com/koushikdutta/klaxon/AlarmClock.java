@@ -175,6 +175,7 @@ public class AlarmClock extends Activity implements OnItemClickListener {
                                     public void onClick(DialogInterface d,
                                             int w) {
                                     	AlarmSettings.getAlarmSettingsById(AlarmClock.this, mDatabase, id).delete();
+                                    	AlarmSettings.scheduleNextAlarm(AlarmClock.this);
                                     	mCursor.requery();
                                     }
                                 })
