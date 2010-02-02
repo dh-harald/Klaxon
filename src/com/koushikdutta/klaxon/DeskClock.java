@@ -732,22 +732,12 @@ public class DeskClock extends Activity {
         } else if (item.getItemId() == R.id.menu_item_add_alarm) {
 			AlarmSettings settings = new AlarmSettings(this, mDatabase);
 			settings.insert();
-			EditAlarm(settings.get_Id());
+			AlarmSettings.editAlarm(this, settings.get_Id());
 			return true;
         }
         return false;
     }
-    
-  	static final int REQUEST_ALARM_EDIT = 0;
-  	static final int REQUEST_CLOCK_FACE = 1;
   	
-  	void EditAlarm(long alarmId)
-    {
-        Intent intent = new Intent(this, AlarmEditActivity.class);
-		intent.putExtra(AlarmSettings.GEN_FIELD__id, alarmId);
-		startActivityForResult(intent, REQUEST_ALARM_EDIT);
-	}
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();

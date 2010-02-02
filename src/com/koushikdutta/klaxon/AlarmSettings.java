@@ -8,6 +8,7 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.Locale;
 
+import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
@@ -94,7 +95,7 @@ public class AlarmSettings extends AlarmSettingsBase {
 	public static AlarmSettings getAlarmSettingsById(Context context, SQLiteDatabase database, long id)
 	{
 		AlarmSettings ret = new AlarmSettings(context, database);
-		Cursor cursor = database.rawQuery("SELECT * FROM " + GEN_TABLE_NAME + " WHERE " + GEN_FIELD__id + " = " + id, null);
+		Cursor cursor = database.rawQuery("SELECT * FROM " + GEN_TABLE_NAME + " WHERE " + GEN_FIELD__ID + " = " + id, null);
 		if (!cursor.moveToNext())
 		{
 			cursor.close();
@@ -228,7 +229,7 @@ public class AlarmSettings extends AlarmSettingsBase {
 		Intent intent = new Intent(ALARM_ALERT_ACTION);
 		if (minAlarmSettings != null)
 		{
-			intent.putExtra(GEN_FIELD__id, minAlarmSettings.get_Id());
+			intent.putExtra(GEN_FIELD__ID, minAlarmSettings.get_Id());
 			intent.putExtra("AlarmTime", (long) minAlarm);
 		}
 
@@ -341,4 +342,13 @@ public class AlarmSettings extends AlarmSettingsBase {
         }
         return ret.toString();
     }
+    
+  	public static final int REQUEST_ALARM_EDIT = 100;
+  	public static final int REQUEST_CLOCK_FACE = 101;
+  	public static void editAlarm(Activity activity, long alarmId)
+    {
+        Intent intent = new Intent(activity, AlarmEditActivity.class);
+		intent.putExtra(AlarmSettings.GEN_FIELD__ID, alarmId);
+		activity.startActivityForResult(intent, REQUEST_ALARM_EDIT);
+	} 
 }

@@ -142,7 +142,7 @@ public class AlarmActivity extends DeskClock
 		if (mDatabase == null)
 		{
 			Intent intent = getIntent();
-			long alarmId = intent.getLongExtra(AlarmSettings.GEN_FIELD__id, -1);
+			long alarmId = intent.getLongExtra(AlarmSettings.GEN_FIELD__ID, -1);
 			mDatabase = AlarmSettings.getDatabase(this);
 			mSettings = AlarmSettings.getAlarmSettingsById(this, mDatabase, alarmId);
 			mKlaxonSettings = new KlaxonSettings(this);

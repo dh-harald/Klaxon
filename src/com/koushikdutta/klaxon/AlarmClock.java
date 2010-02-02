@@ -71,9 +71,7 @@ public class AlarmClock extends Activity implements OnItemClickListener {
                 : R.drawable.ic_indicator_off);
         alarm.setEnabled(enabled);
         alarm.update();
-        if (enabled) {
-			AlarmSettings.scheduleNextAlarm(this);
-        }
+		AlarmSettings.scheduleNextAlarm(this);
     }
 
     private class AlarmTimeAdapter extends CursorAdapter {
@@ -149,15 +147,6 @@ public class AlarmClock extends Activity implements OnItemClickListener {
             }
         }
     };
-
-  	static final int REQUEST_ALARM_EDIT = 0;
-  	static final int REQUEST_CLOCK_FACE = 1;
-  	void EditAlarm(long alarmId)
-    {
-        Intent intent = new Intent(this, AlarmEditActivity.class);
-		intent.putExtra(AlarmSettings.GEN_FIELD__id, alarmId);
-		startActivityForResult(intent, REQUEST_ALARM_EDIT);
-	}
   	
     @Override
     public boolean onContextItemSelected(final MenuItem item) {
@@ -194,7 +183,7 @@ public class AlarmClock extends Activity implements OnItemClickListener {
                 return true;
 
             case R.id.edit_alarm:
-            	EditAlarm(id);
+            	AlarmSettings.editAlarm(this, id);
                 return true;
 
             default:
@@ -229,7 +218,7 @@ public class AlarmClock extends Activity implements OnItemClickListener {
                 public void onClick(View v) {
         			AlarmSettings settings = new AlarmSettings(AlarmClock.this, mDatabase);
         			settings.insert();
-        			EditAlarm(settings.get_Id());
+        			AlarmSettings.editAlarm(AlarmClock.this, settings.get_Id());
                 	mCursor.requery();
         		}
             });
@@ -307,7 +296,7 @@ public class AlarmClock extends Activity implements OnItemClickListener {
             case R.id.menu_item_add_alarm:
     			AlarmSettings settings = new AlarmSettings(AlarmClock.this, mDatabase);
     			settings.insert();
-    			EditAlarm(settings.get_Id());
+    			AlarmSettings.editAlarm(this, settings.get_Id());
             	mCursor.requery();
             	return true;
             default:
@@ -323,7 +312,7 @@ public class AlarmClock extends Activity implements OnItemClickListener {
     }
 
     public void onItemClick(AdapterView parent, View v, int pos, long id) {
-    	EditAlarm(id);
+    	AlarmSettings.editAlarm(this, id);
     }
     
     @Override

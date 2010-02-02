@@ -59,7 +59,7 @@ public class AlarmEditActivity extends PreferenceActivity
 		addPreferencesFromResource(R.xml.alarm_prefs);
 		Intent i = getIntent();
 		mDatabase = AlarmSettings.getDatabase(this);
-		mSettings = AlarmSettings.getAlarmSettingsById(this, mDatabase, i.getLongExtra(AlarmSettings.GEN_FIELD__id, -1));
+		mSettings = AlarmSettings.getAlarmSettingsById(this, mDatabase, i.getLongExtra(AlarmSettings.GEN_FIELD__ID, -1));
 		setResult(Activity.RESULT_OK, i);
 
 		mNamePref = findPreference("alarmname");

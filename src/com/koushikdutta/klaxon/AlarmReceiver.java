@@ -39,7 +39,7 @@ public class AlarmReceiver extends BroadcastReceiver
 		try
 		{
 			long alarmTime = intent.getLongExtra("AlarmTime", 0);
-			long alarmId = intent.getLongExtra(AlarmSettings.GEN_FIELD__id, -1);
+			long alarmId = intent.getLongExtra(AlarmSettings.GEN_FIELD__ID, -1);
 			GregorianCalendar cal = new GregorianCalendar(Locale.getDefault());
 			if (alarmId == -1 || alarmTime > cal.getTimeInMillis())
 			{
@@ -54,7 +54,7 @@ public class AlarmReceiver extends BroadcastReceiver
 				settings.setEnabled(false);
 			Intent alarmIntent = new Intent(context, AlarmActivity.class);
 			alarmIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-			alarmIntent.putExtra(AlarmSettings.GEN_FIELD__id, alarmId);
+			alarmIntent.putExtra(AlarmSettings.GEN_FIELD__ID, alarmId);
 			context.startActivity(alarmIntent);
 		}
 		finally
