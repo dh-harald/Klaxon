@@ -32,6 +32,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.database.Cursor;
@@ -662,7 +663,7 @@ public class DeskClock extends Activity {
             public void onClick(View v) {
                 try {
                 	Intent musicAppQuery = new Intent();
-                	musicAppQuery.setPackage(MUSIC_PACKAGE_ID);
+                	musicAppQuery.setClassName(MUSIC_PACKAGE_ID, "com.android.music.MusicBrowserActivity");
                 	musicAppQuery.setAction(Intent.ACTION_MAIN);
                 	musicAppQuery.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_CLEAR_TOP);
                     if (musicAppQuery != null) {
@@ -704,12 +705,16 @@ public class DeskClock extends Activity {
             public void onClick(View v) {
                 if (!supportsWeather()) return;
 
-                Intent genieAppQuery = getPackageManager()
-                    .getLaunchIntentForPackage(GENIE_PACKAGE_ID)
-                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                if (genieAppQuery != null) {
-                    startActivity(genieAppQuery);
-                }
+                Intent genieAppQuery;
+				try {
+					genieAppQuery = getPackageManager()
+					    .getLaunchIntentForPackage(GENIE_PACKAGE_ID)
+					    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_CLEAR_TOP);
+	                if (genieAppQuery != null) {
+	                    startActivity(genieAppQuery);
+	                }
+				} catch (Exception e) {
+				}
             }
         });
     }
