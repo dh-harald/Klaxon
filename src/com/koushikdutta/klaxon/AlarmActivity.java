@@ -18,7 +18,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Vibrator;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -234,7 +233,7 @@ public class AlarmActivity extends DeskClock
 
 	void stopAlarm()
 	{
-		Log.i(LOGTAG, "Stopping alarm.");
+		Log.v("stopAlarm");
 		mSettings.setNextSnooze(0);
 		if (mSettings.isOneShot())
 			mSettings.setEnabled(false);
@@ -288,11 +287,9 @@ public class AlarmActivity extends DeskClock
 
 	void snoozeAlarm()
 	{
-		Log.i(LOGTAG, "snoozeAlarm");
-
 		if (mSnoozeTime == 0)
 			return;
-		Log.i(LOGTAG, "Snoozing alarm.");
+		Log.v("snoozeAlarm");
 		stopNotification();
 
 		mVibrator.vibrate(300);
@@ -310,7 +307,7 @@ public class AlarmActivity extends DeskClock
 
 	void stopNotification()
 	{
-		Log.i(LOGTAG, "stopNotification");
+		Log.v("stopNotification");
 		AlarmAlertWakeLock.release();
 		mVibrator.cancel();
 		mStopVolumeAdjustThread = true;
@@ -320,15 +317,15 @@ public class AlarmActivity extends DeskClock
 
 	void onFlipAction()
 	{
-		Log.i(LOGTAG, "Flip Action");
+		Log.v("onFlipAction");
 		if (mSnoozeEnd == null || mSnoozeEnd.before(new GregorianCalendar()))
 		{
-			Log.i(LOGTAG, "Snoozing alarm");
+			Log.v("Snoozing alarm");
 			snoozeAlarm();
 		}
 		else
 		{
-			Log.i(LOGTAG, "Not snoozing alarm- already snoozing.");
+			Log.v("Not snoozing alarm; already snoozing.");
 		}
 	}
 
@@ -498,7 +495,6 @@ public class AlarmActivity extends DeskClock
 				{
 					try
 					{
-						Log.i(LOGTAG, "Volume thread starting.");
 						double curVolume = 0;
 						double volumeStep = maxVolume / volumeRamp;
 						for (int i = 0; i < volumeRamp; i++)
@@ -507,15 +503,11 @@ public class AlarmActivity extends DeskClock
 							{
 								Thread.sleep(1000);
 								if (mStopVolumeAdjustThread)
-								{
-									Log.i(LOGTAG, "Volume thread interrupted!");
 									break;
-								}
 							}
 							catch (InterruptedException e)
 							{
 							}
-							Log.i(LOGTAG, "Stepping volume");
 							curVolume += volumeStep;
 							double convertedVolume = streamMaxVolume * curVolume / 100d;
 							mAudioManager.setStreamVolume(AUDIO_STREAM, (int)convertedVolume, 0);
@@ -527,10 +519,6 @@ public class AlarmActivity extends DeskClock
 					catch (Exception ex)
 					{
 						ex.printStackTrace();
-					}
-					finally
-					{
-						Log.i(LOGTAG, "Volume thread exiting.");
 					}
 				}
 			}).start();
@@ -551,7 +539,7 @@ public class AlarmActivity extends DeskClock
 
 	void cleanupAlarm()
 	{
-		Log.i(LOGTAG, "cleanupAlarm");
+		Log.v("cleanupAlarm");
 		mStopVolumeAdjustThread = true;
 		unregisterSensorListener();
 		mVibrator.cancel();
@@ -580,13 +568,6 @@ public class AlarmActivity extends DeskClock
 		super.onNewIntent(intent);
 		resumeAlarm();
 	}
-
-	@Override
-	public void onPause()
-	{
-		super.onPause();
-		Log.i(LOGTAG, "onPause");
-	}
 	
     private synchronized void enableKeyguard() {
         if (mKeyguardLock != null) {
@@ -603,22 +584,11 @@ public class AlarmActivity extends DeskClock
     }
     
     @Override
-    public void onResume() {
-    	Log.i(LOGTAG, "onResume");
-    	super.onResume();
-    }
-    
-    @Override
     public void onStop() {
-    	Log.i(LOGTAG, "onStop");
+    	Log.v("onStop");
 		stopNotification();
 		super.onStop();
     }
-    
-    protected void onStart() {
-    	Log.i(LOGTAG, "onStart");
-    	super.onStart();
-    };
     
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {

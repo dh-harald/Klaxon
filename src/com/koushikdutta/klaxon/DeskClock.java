@@ -46,7 +46,6 @@ import android.provider.Settings;
 import android.text.TextUtils;
 import android.text.format.DateFormat;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -165,7 +164,7 @@ public class DeskClock extends Activity {
                     intent.getIntExtra("level", 0));
             } else if ("android.intent.action.DOCK_EVENT".equals(action)) {
                 int state = intent.getIntExtra("android.intent.extra.DOCK_STATE", -1);
-                if (DEBUG) Log.d(LOG_TAG, "ACTION_DOCK_EVENT, state=" + state);
+                if (DEBUG) Log.d("ACTION_DOCK_EVENT, state=" + state);
                 if (state == /* Intent.EXTRA_DOCK_STATE_UNDOCKED */ 0x00000000) {
                     if (mLaunchedFromDock) {
                         // moveTaskToBack(false);
@@ -215,7 +214,7 @@ public class DeskClock extends Activity {
             y = (int)(mRNG.nextFloat()*(metrics.heightPixels - myHeight));
         }
 
-        if (DEBUG) Log.d(LOG_TAG, String.format("screen saver: %d: jumping to (%d,%d)",
+        if (DEBUG) Log.d(String.format("screen saver: %d: jumping to (%d,%d)",
                 System.currentTimeMillis(), x, y));
 
         saver_view.setLayoutParams(new AbsoluteLayout.LayoutParams(
@@ -231,7 +230,7 @@ public class DeskClock extends Activity {
     }
 
     private void setWakeLock(boolean hold) {
-        if (DEBUG) Log.d(LOG_TAG, (hold ? "hold" : " releas") + "ing wake lock");
+        if (DEBUG) Log.d((hold ? "hold" : " releas") + "ing wake lock");
         Window win = getWindow();
         WindowManager.LayoutParams winParams = win.getAttributes();
         winParams.flags |= 0x00400000; //WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD;
@@ -246,7 +245,7 @@ public class DeskClock extends Activity {
 
     private void restoreScreen() {
         if (!mScreenSaverMode) return;
-        if (DEBUG) Log.d(LOG_TAG, "restoreScreen");
+        if (DEBUG) Log.d("restoreScreen");
         mScreenSaverMode = false;
         initViews();
         doDim(false); // restores previous dim mode
@@ -258,7 +257,7 @@ public class DeskClock extends Activity {
     // Special screen-saver mode for OLED displays that burn in quickly
     private void saveScreen() {
         if (mScreenSaverMode) return;
-        if (DEBUG) Log.d(LOG_TAG, "saveScreen");
+        if (DEBUG) Log.d("saveScreen");
 
         // quickly stash away the x/y of the current date
         final View oldTimeDate = findViewById(R.id.time_date);
@@ -314,7 +313,7 @@ public class DeskClock extends Activity {
 
     // Tell the Genie widget to load new data from the network.
     private void requestWeatherDataFetch() {
-        if (DEBUG) Log.d(LOG_TAG, "forcing the Genie widget to update weather now...");
+        if (DEBUG) Log.d("forcing the Genie widget to update weather now...");
         sendBroadcast(new Intent(ACTION_GENIE_REFRESH).putExtra("requestWeather", true));
         // update the display with any new data
         scheduleWeatherQueryDelayed(5000);
@@ -328,7 +327,7 @@ public class DeskClock extends Activity {
         // cancel any existing scheduled queries
         unscheduleWeatherQuery();
 
-        if (DEBUG) Log.d(LOG_TAG, "scheduling weather fetch message for " + delay + "ms from now");
+        if (DEBUG) Log.d("scheduling weather fetch message for " + delay + "ms from now");
 
         mHandy.sendEmptyMessageDelayed(QUERY_WEATHER_DATA_MSG, delay);
     }
@@ -349,7 +348,7 @@ public class DeskClock extends Activity {
             .appendPath(new Long(System.currentTimeMillis()).toString())
             .build();
 
-        if (DEBUG) Log.d(LOG_TAG, "querying genie: " + queryUri);
+        if (DEBUG) Log.d("querying genie: " + queryUri);
 
         Cursor cur;
         try {
@@ -360,7 +359,7 @@ public class DeskClock extends Activity {
                 null,
                 null);
         } catch (RuntimeException e) {
-            Log.e(LOG_TAG, "Weather query failed", e);
+            Log.e("Weather query failed", e);
             cur = null;
         }
 
@@ -375,7 +374,7 @@ public class DeskClock extends Activity {
                         .append(cur.getString(i));
                 }
                 sb.append("}");
-                Log.d(LOG_TAG, sb.toString());
+                Log.d(sb.toString());
             }
 
             mWeatherIconDrawable = mGenieResources.getDrawable(cur.getInt(
@@ -402,7 +401,7 @@ public class DeskClock extends Activity {
                     ? "\u2014"
                     : String.format("%d\u00b0", cur.getInt(colLow));
         } else {
-            Log.w(LOG_TAG, "No weather information available (cur="
+            Log.w("No weather information available (cur="
                 + cur +")");
             mWeatherIconDrawable = null;
             mWeatherLocationString = getString(R.string.weather_fetch_failure);
@@ -464,7 +463,7 @@ public class DeskClock extends Activity {
 
     private void refreshDate() {
         final Date now = new Date();
-        if (DEBUG) Log.d(LOG_TAG, "refreshing date..." + now);
+        if (DEBUG) Log.d("refreshing date..." + now);
         mDate.setText(DateFormat.format(mDateFormat, now));
     }
 
@@ -527,7 +526,7 @@ public class DeskClock extends Activity {
     @Override
     public void onNewIntent(Intent newIntent) {
         super.onNewIntent(newIntent);
-        if (DEBUG) Log.d(LOG_TAG, "onNewIntent with intent: " + newIntent);
+        if (DEBUG) Log.d("onNewIntent with intent: " + newIntent);
 
         // update our intent so that we can consult it to determine whether or
         // not the most recent launch was via a dock event 
@@ -537,7 +536,7 @@ public class DeskClock extends Activity {
     @Override
     public void onResume() {
         super.onResume();
-        if (DEBUG) Log.d(LOG_TAG, "onResume with intent: " + getIntent());
+        if (DEBUG) Log.d("onResume with intent: " + getIntent());
 
         // reload the date format in case the user has changed settings
         // recently
@@ -575,7 +574,7 @@ public class DeskClock extends Activity {
 
         if (supportsWeather() && launchedFromDock && !mLaunchedFromDock) {
             // policy: fetch weather if launched via dock connection
-            if (DEBUG) Log.d(LOG_TAG, "Device now docked; forcing weather to refresh right now");
+            if (DEBUG) Log.d("Device now docked; forcing weather to refresh right now");
             requestWeatherDataFetch();
         }
 
@@ -584,7 +583,7 @@ public class DeskClock extends Activity {
 
     @Override
     public void onPause() {
-        if (DEBUG) Log.d(LOG_TAG, "onPause");
+        if (DEBUG) Log.d("onPause");
 
         // Turn off the screen saver. (But don't un-dim.)
         restoreScreen();
@@ -600,7 +599,7 @@ public class DeskClock extends Activity {
 
     @Override
     public void onStop() {
-        if (DEBUG) Log.d(LOG_TAG, "onStop");
+        if (DEBUG) Log.d("onStop");
 
         // Avoid situations where the user launches Alarm Clock and is
         // surprised to find it in dim mode (because it was last used in dim
@@ -653,7 +652,7 @@ public class DeskClock extends Activity {
                             .putExtra("slideshow", true)
                             .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_CLEAR_TOP));
                 } catch (android.content.ActivityNotFoundException e) {
-                    Log.e(LOG_TAG, "Couldn't launch image browser", e);
+                    Log.e("Couldn't launch image browser", e);
                 }
             }
         });
@@ -670,7 +669,7 @@ public class DeskClock extends Activity {
                         startActivity(musicAppQuery);
                     }
                 } catch (android.content.ActivityNotFoundException e) {
-                    Log.e(LOG_TAG, "Couldn't launch music browser", e);
+                    Log.e("Couldn't launch music browser", e);
                 }
             }
         });
@@ -763,7 +762,7 @@ public class DeskClock extends Activity {
             mGenieResources = getPackageManager().getResourcesForApplication(GENIE_PACKAGE_ID);
         } catch (PackageManager.NameNotFoundException e) {
             // no weather info available
-            Log.w(LOG_TAG, "Can't find "+GENIE_PACKAGE_ID+". Weather forecast will not be available.");
+            Log.w("Can't find "+GENIE_PACKAGE_ID+". Weather forecast will not be available.");
         }
 
         initViews();

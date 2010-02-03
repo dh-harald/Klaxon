@@ -23,7 +23,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
-import android.util.Log;
 
 /**
  * Glue class: connects AlarmAlert IntentReceiver to AlarmAlert activity. Passes
@@ -31,11 +30,10 @@ import android.util.Log;
  */
 public class AlarmReceiver extends BroadcastReceiver
 {
-	final static String LOGTAG = "Klaxon";
 	@Override
 	public void onReceive(Context context, Intent intent)
 	{
-		Log.i(LOGTAG, "AlarmReceiver received has received a broadcast.");
+		Log.i("AlarmReceiver received has received a broadcast.");
 		try
 		{
 			long alarmTime = intent.getLongExtra("AlarmTime", 0);
@@ -43,13 +41,13 @@ public class AlarmReceiver extends BroadcastReceiver
 			GregorianCalendar cal = new GregorianCalendar(Locale.getDefault());
 			if (alarmId == -1 || alarmTime > cal.getTimeInMillis())
 			{
-				Log.e(LOGTAG, "Invalid alarmId (" + alarmId + ") or alarmTime (" + alarmTime + ")");
+				Log.e("Invalid alarmId (" + alarmId + ") or alarmTime (" + alarmTime + ")");
 				return;
 			}
 			
 			AlarmAlertWakeLock.acquire(context);
 			AlarmSettings settings = AlarmSettings.getAlarmSettingsById(context, alarmId);
-			Log.i(LOGTAG, "Sounding alarm " + settings.getName());
+			Log.i("Sounding alarm " + settings.getName());
 			if (settings.isOneShot())
 				settings.setEnabled(false);
 			Intent alarmIntent = new Intent(context, AlarmActivity.class);

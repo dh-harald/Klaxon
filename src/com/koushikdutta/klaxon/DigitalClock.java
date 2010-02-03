@@ -29,7 +29,6 @@ import android.os.Handler;
 import android.provider.Settings;
 import android.text.format.DateFormat;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -38,8 +37,6 @@ import android.widget.TextView;
  * Displays the time
  */
 public class DigitalClock extends LinearLayout {
-
-	private static final String LOGTAG = "Klaxon";
 	
     private final static String M12 = "h:mm";
     private final static String M24 = "kk:mm";
@@ -131,7 +128,7 @@ public class DigitalClock extends LinearLayout {
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
 
-        Log.v(LOGTAG, "onAttachedToWindow " + this);
+        Log.v("onAttachedToWindow " + this);
 
         if (mAttached) return;
         mAttached = true;

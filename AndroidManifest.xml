@@ -14,6 +14,7 @@
                 android:label="@string/alarm_list_title"
                 android:taskAffinity=""
                 android:excludeFromRecents="true"
+                android:launchMode="singleInstance"
                 android:configChanges="orientation|keyboardHidden|keyboard|navigation"
                 >
             <intent-filter>

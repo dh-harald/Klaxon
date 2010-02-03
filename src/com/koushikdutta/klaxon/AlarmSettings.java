@@ -212,6 +212,7 @@ public class AlarmSettings extends AlarmSettingsBase {
 	public static final String ALARM_ALERT_ACTION = "com.koushikdutta.klaxon.ALARM_ALERT";
 	public static AlarmSettings scheduleNextAlarm(Context context)
 	{
+		Log.v("Scheduling next alarm");
 		Long minAlarm = null;
 		AlarmSettings minAlarmSettings = null;
 
