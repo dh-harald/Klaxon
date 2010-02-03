@@ -316,6 +316,13 @@ public class AlarmClock extends Activity implements OnItemClickListener {
     }
     
     @Override
+    protected void onStart() {
+    	// TODO Auto-generated method stub
+    	super.onStart();
+    	mCursor.requery();
+    }
+    
+    @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
     	super.onActivityResult(requestCode, resultCode, data);
     	mCursor.requery();
