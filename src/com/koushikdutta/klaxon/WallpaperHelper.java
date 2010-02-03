@@ -15,7 +15,16 @@ import android.view.WindowManager;
 public class WallpaperHelper {
 	public static void setWindowBackground(Activity activity)
 	{
-        Display display = ((WindowManager)activity.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay(); 
+    	Class style = android.R.style.class;
+    	try {
+			java.lang.reflect.Field field = style.getField("Theme_Wallpaper_NoTitleBar");
+			activity.setTheme(field.getInt(null));
+			return;
+		} catch (Exception e) {
+			activity.setTheme(android.R.style.Theme_NoTitleBar);
+		}
+
+		Display display = ((WindowManager)activity.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay(); 
         Drawable d = activity.getWallpaper();
         Window window = activity.getWindow();
         int xdif = d.getIntrinsicWidth() - display.getWidth();

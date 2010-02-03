@@ -610,8 +610,6 @@ public class DeskClock extends Activity {
     }
 
     protected void initViews() {
-    	WallpaperHelper.setWindowBackground(this);
-        
         // give up any internal focus before we switch layouts
         final View focused = getCurrentFocus();
         if (focused != null) focused.clearFocus();
@@ -748,11 +746,13 @@ public class DeskClock extends Activity {
         inflater.inflate(R.menu.desk_clock_menu, menu);
         return true;
     }
-
+    
     SQLiteDatabase mDatabase;
     @Override
     protected void onCreate(Bundle icicle) {
-        super.onCreate(icicle);
+    	WallpaperHelper.setWindowBackground(this);
+
+		super.onCreate(icicle);
              
 		mDatabase = AlarmSettings.getDatabase(this);
 
