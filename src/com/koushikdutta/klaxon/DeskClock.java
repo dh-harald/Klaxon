@@ -540,7 +540,17 @@ public class DeskClock extends Activity {
 
         // reload the date format in case the user has changed settings
         // recently
-        mDateFormat = "EEEE, d MMMM"; //getString(com.android.internal.R.string.full_wday_month_day_no_year);
+        try
+        {
+            // mDateFormat = getString(com.android.internal.R.string.full_wday_month_day_no_year);
+        	Class clazz = Class.forName("com.android.internal.R$string");
+        	java.lang.reflect.Field field = clazz.getField("full_wday_month_day_no_year");
+        	mDateFormat = getString(field.getInt(null));        	
+        }
+        catch(Exception ex)
+        {
+        	mDateFormat = "EEEE, d MMMM";
+        }
 
         IntentFilter filter = new IntentFilter();
         filter.addAction(Intent.ACTION_DATE_CHANGED);
