@@ -265,7 +265,7 @@ public class AlarmEditActivity extends PreferenceActivity
 					mSettings.setHour(hourOfDay);
 					mSettings.setMinutes(minute);
 					mSettings.setEnabled(true);
-					mEnabledPref.setEnabled(true);
+					mEnabledPref.setChecked(true);
 					refreshTimeSummary();
 					scheduleNextAlarm();
 				}
