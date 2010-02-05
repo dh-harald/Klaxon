@@ -258,13 +258,24 @@ public class AlarmSettings extends AlarmSettingsBase {
 	/**
 	 * Shows day and time -- used for lock screen
 	 */
-	private static String formatDayAndTime(final Context context, Date dt)
+	public static String formatDayAndTime(final Context context, Date dt)
 	{
 		SimpleDateFormat df;
 		if (KlaxonSettings.is24HourMode(context))
 			df = new SimpleDateFormat("EEE H:mm");
 		else
 			df = new SimpleDateFormat("EEE h:mm a");
+		
+		return df.format(dt);
+	}
+	
+	public static String formatLongDayAndTime(final Context context, Date dt)
+	{
+		SimpleDateFormat df;
+		if (KlaxonSettings.is24HourMode(context))
+			df = new SimpleDateFormat("EEEE H:mm");
+		else
+			df = new SimpleDateFormat("EEEE h:mm a");
 		
 		return df.format(dt);
 	}

@@ -99,4 +99,6 @@
     
     <!-- Menu item title for general Alarm Clock Settings -->
     <string name="settings">Settings</string>
+    
+    <string name="alarm_ticker">Alarm</string>
 </resources>

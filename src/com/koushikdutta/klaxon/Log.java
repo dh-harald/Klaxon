@@ -24,7 +24,7 @@ import android.os.SystemClock;
 import android.util.Config;
 
 class Log {
-    public final static String LOGTAG = "AlarmClock";
+    public final static String LOGTAG = "Klaxon";
 
     static final boolean LOGV = AlarmClock.DEBUG ? Config.LOGD : Config.LOGV;
 

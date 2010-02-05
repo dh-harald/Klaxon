@@ -29,7 +29,6 @@ import android.widget.TextView;
 public class AlarmActivity extends DeskClock
 {
 	AlarmSettings mSettings;
-	MediaPlayer mPlayer;
 	Handler mHandler = new Handler();
 	KlaxonSettings mKlaxonSettings;
 	SensorManager mSensorManager;
@@ -38,12 +37,7 @@ public class AlarmActivity extends DeskClock
 	GregorianCalendar mExpireTime;
 	MenuItem mOffMenuItem;
 	TextView mNextAlarm;
-	Vibrator mVibrator;
-	boolean mVibrateEnabled = true;
-	final static String LOGTAG = "Klaxon";
 	SQLiteDatabase mDatabase;
-	private KeyguardManager mKeyguardManager;
-	private KeyguardManager.KeyguardLock mKeyguardLock = null;
 
 	static boolean isFlat(int orientation)
 	{
@@ -163,15 +157,10 @@ public class AlarmActivity extends DeskClock
 		catch(Exception ex)
 		{
 		}
-        mKeyguardManager = (KeyguardManager) getSystemService(Context.KEYGUARD_SERVICE);
-		mVibrator = (Vibrator) getSystemService(VIBRATOR_SERVICE);
 		
 		String name = mSettings.getName();
 		if (name != null && !"".equals(name))
 			setTitle(name);
-
-		mVibrateEnabled = mSettings.getVibrateEnabled();
-		prepareAlarm();
 
 		mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
 
@@ -182,7 +171,6 @@ public class AlarmActivity extends DeskClock
 		filter.addAction(Intent.ACTION_TIMEZONE_CHANGED);
 		registerReceiver(mTimeChangedReceiver, filter, null, mHandler);
 
-		mAudioManager = (AudioManager) getSystemService(AUDIO_SERVICE);
 		resumeAlarm();
 	}
 	
@@ -234,15 +222,11 @@ public class AlarmActivity extends DeskClock
 	void stopAlarm()
 	{
 		Log.v("stopAlarm");
-		mSettings.setNextSnooze(0);
-		if (mSettings.isOneShot())
-			mSettings.setEnabled(false);
-		mSettings.update();
-		AlarmSettings.scheduleNextAlarm(this);
+		Intent i = new Intent();
+		i.setClassName(this, "com.koushikdutta.klaxon.AlarmService");
+		stopService(i);
 		finish();
 	}
-
-	AudioManager mAudioManager;
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu)
@@ -262,26 +246,6 @@ public class AlarmActivity extends DeskClock
 		return super.onMenuItemSelected(featureId, item);
 	}
 
-	final int AUDIO_STREAM = AudioManager.STREAM_MUSIC;
-
-	void prepareAlarm()
-	{
-		Uri ringtoneUri = mSettings.getRingtone();
-		try
-		{
-			if (ringtoneUri != null)
-				mPlayer = MediaPlayer.create(this, ringtoneUri);
-			else
-				mPlayer = MediaPlayer.create(this, R.raw.klaxon);
-			mPlayer.setLooping(true);
-		}
-		catch (Exception e)
-		{
-			mPlayer = MediaPlayer.create(this, R.raw.klaxon);
-			mPlayer.setLooping(true);
-		}
-		mPlayer.setAudioStreamType(AUDIO_STREAM);
-	}
 
 	GregorianCalendar mSnoozeEnd = null;
 
@@ -290,29 +254,16 @@ public class AlarmActivity extends DeskClock
 		if (mSnoozeTime == 0)
 			return;
 		Log.v("snoozeAlarm");
-		stopNotification();
+		Intent i = new Intent();
+		i.setClassName(this, "com.koushikdutta.klaxon.AlarmService");
+		i.putExtra("snooze", true);
+		startService(i);
 
-		mVibrator.vibrate(300);
 		mExpireTime = null;
 		mSnoozeEnd = new GregorianCalendar();
 		mSnoozeEnd.add(Calendar.MINUTE, mSnoozeTime);
 		refreshNextAlarmText();
-		AlarmAlertWakeLock.acquirePartial(this);
-		mSettings.setNextSnooze(mSnoozeEnd.getTimeInMillis());
-		mSettings.setEnabled(true);
-		mSettings.update();
-		AlarmSettings.scheduleNextAlarm(this);
 		refreshAlarm();
-	}
-
-	void stopNotification()
-	{
-		Log.v("stopNotification");
-		AlarmAlertWakeLock.release();
-		mVibrator.cancel();
-		mStopVolumeAdjustThread = true;
-		unregisterSensorListener();
-		mPlayer.pause();
 	}
 
 	void onFlipAction()
@@ -340,7 +291,6 @@ public class AlarmActivity extends DeskClock
 
 	void resumeAlarm()
 	{
-		disableKeyguard();
 		unregisterSensorListener();
 		Sensor compass = mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
 		
@@ -477,61 +427,8 @@ public class AlarmActivity extends DeskClock
 			mSensorManager.registerListener(mListener, SensorManager.SENSOR_MAGNETIC_FIELD);
 		}
 
-		final double streamMaxVolume = mAudioManager.getStreamMaxVolume(AUDIO_STREAM);
-		final double volumeRamp = mSettings.getVolumeRamp();
-		final double maxVolume = mSettings.getVolume();
-		if (volumeRamp == 0)
-		{
-			double convertedVolume = streamMaxVolume * maxVolume / 100d;
-			mAudioManager.setStreamVolume(AUDIO_STREAM, (int)convertedVolume, 0);
-		}
-		else
-		{
-			mAudioManager.setStreamVolume(AUDIO_STREAM, 0, 0);
-			mStopVolumeAdjustThread = false;
-			new Thread(new Runnable()
-			{
-				public void run()
-				{
-					try
-					{
-						double curVolume = 0;
-						double volumeStep = maxVolume / volumeRamp;
-						for (int i = 0; i < volumeRamp; i++)
-						{
-							try
-							{
-								Thread.sleep(1000);
-								if (mStopVolumeAdjustThread)
-									break;
-							}
-							catch (InterruptedException e)
-							{
-							}
-							curVolume += volumeStep;
-							double convertedVolume = streamMaxVolume * curVolume / 100d;
-							mAudioManager.setStreamVolume(AUDIO_STREAM, (int)convertedVolume, 0);
-						}
-	
-						double convertedVolume = streamMaxVolume * maxVolume / 100d;
-						mAudioManager.setStreamVolume(AUDIO_STREAM, (int)convertedVolume, 0);
-					}
-					catch (Exception ex)
-					{
-						ex.printStackTrace();
-					}
-				}
-			}).start();
-		}
-
-		if (mVibrateEnabled)
-			mVibrator.vibrate(new long[] { 5000, 1000 }, 0);
-
-		AlarmAlertWakeLock.acquire(this);
 		mExpireTime = new GregorianCalendar();
 		mExpireTime.add(Calendar.MINUTE, EXPIRE_TIME);
-		mPlayer.start();
-		mPlayer.seekTo(0);
 		refreshNextAlarmText();
 	}
 
@@ -540,16 +437,7 @@ public class AlarmActivity extends DeskClock
 	void cleanupAlarm()
 	{
 		Log.v("cleanupAlarm");
-		mStopVolumeAdjustThread = true;
 		unregisterSensorListener();
-		mVibrator.cancel();
-		if (mPlayer != null)
-		{
-			mPlayer.stop();
-			mPlayer.release();
-			mPlayer = null;
-		}
-		AlarmAlertWakeLock.release();
 		unregisterReceiver(mTimeChangedReceiver);
 	}
 
@@ -558,7 +446,6 @@ public class AlarmActivity extends DeskClock
 	{
 		super.onDestroy();
 		cleanupAlarm();
-		enableKeyguard();
 		mDatabase.close();
 	}
 
@@ -568,28 +455,7 @@ public class AlarmActivity extends DeskClock
 		super.onNewIntent(intent);
 		resumeAlarm();
 	}
-	
-    private synchronized void enableKeyguard() {
-        if (mKeyguardLock != null) {
-            mKeyguardLock.reenableKeyguard();
-            mKeyguardLock = null;
-        }
-    }
-
-    private synchronized void disableKeyguard() {
-        if (mKeyguardLock == null) {
-            mKeyguardLock = mKeyguardManager.newKeyguardLock(LOGTAG);
-            mKeyguardLock.disableKeyguard();
-        }
-    }
-    
-    @Override
-    public void onStop() {
-    	Log.v("onStop");
-		stopNotification();
-		super.onStop();
-    }
-    
+   
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
     	if (keyCode == KeyEvent.KEYCODE_BACK)

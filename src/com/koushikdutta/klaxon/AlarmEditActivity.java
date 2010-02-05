@@ -213,9 +213,10 @@ public class AlarmEditActivity extends PreferenceActivity
 		}
 		else if (item == mTestAlarm)
 		{
-			Intent i = new Intent(this, AlarmActivity.class);
+			Intent i = new Intent(this, AlarmService.class);
 			i.putExtra(AlarmSettings.GEN_FIELD__ID, mSettings.get_Id());
-			startActivity(i);
+			i.putExtra("AlarmTime", (long)System.currentTimeMillis());
+			startService(i);
 		}
 
 		return super.onMenuItemSelected(featureId, item);

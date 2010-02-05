@@ -50,10 +50,10 @@ public class AlarmReceiver extends BroadcastReceiver
 			Log.i("Sounding alarm " + settings.getName());
 			if (settings.isOneShot())
 				settings.setEnabled(false);
-			Intent alarmIntent = new Intent(context, AlarmActivity.class);
-			alarmIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+			Intent alarmIntent = new Intent(context, AlarmService.class);
 			alarmIntent.putExtra(AlarmSettings.GEN_FIELD__ID, alarmId);
-			context.startActivity(alarmIntent);
+			alarmIntent.putExtra("AlarmTime", intent.getLongExtra("AlarmTime", 0));
+			context.startService(alarmIntent);
 		}
 		finally
 		{

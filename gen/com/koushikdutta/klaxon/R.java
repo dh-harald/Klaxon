@@ -167,6 +167,7 @@ public final class R {
         /**  Title for AlarmClock activity 
          */
         public static final int alarm_list_title=0x7f07000e;
+        public static final int alarm_ticker=0x7f070017;
         public static final int app_name=0x7f070000;
         /**  A short representation of charging information, e.g "34%" 
          */
