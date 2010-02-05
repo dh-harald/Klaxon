@@ -74,7 +74,7 @@
     <string name="weather_fetch_failure">Weather information currently unavailable.</string>
     
     <!-- Title for AlarmClock activity -->
-    <string name="alarm_list_title">Klaxon</string>
+    <string name="alarm_list_title">Alarms</string>
 
     <!-- Menu item on Alarm Clock screen: Add alarm -->
     <string name="add_alarm">Add alarm</string>
