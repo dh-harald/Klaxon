@@ -39,6 +39,12 @@ public class AlarmService extends Service {
 	NotificationManager mNotificationManager;
 
 	@Override
+	public void onCreate() {
+		AlarmAlertWakeLock.acquire(this);
+		super.onCreate();
+	}
+	
+	@Override
 	public void onStart(Intent intent, int startId) {
 		super.onStart(intent, startId);
 		
