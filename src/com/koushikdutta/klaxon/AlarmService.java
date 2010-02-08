@@ -34,7 +34,7 @@ public class AlarmService extends Service {
 	boolean mStopVolumeAdjust = false;
 	static final int EXPIRE_TIME = 30;
 	Handler mHandler = new Handler();
-	double curVolume = 0;
+	double mCurVolume = 0;
 	Runnable mVolumeRunnable;
 	NotificationManager mNotificationManager;
 
@@ -137,6 +137,7 @@ public class AlarmService extends Service {
 			mAudioManager.setStreamVolume(AUDIO_STREAM, 0, 0);
 			mStopVolumeAdjust = false;
 			final double volumeStep = maxVolume / volumeRamp;
+			mCurVolume = 0;
 
 			if (mVolumeRunnable == null)
 			{
@@ -148,10 +149,10 @@ public class AlarmService extends Service {
 						{
 							if (mStopVolumeAdjust)
 								return;
-							curVolume += volumeStep;
-							double convertedVolume = streamMaxVolume * curVolume / 100d;
+							mCurVolume += volumeStep;
+							double convertedVolume = streamMaxVolume * mCurVolume / 100d;
 							mAudioManager.setStreamVolume(AUDIO_STREAM, (int)convertedVolume, 0);
-							if (curVolume >= 100)
+							if (mCurVolume >= 100)
 								return;
 							mHandler.postDelayed(this, 1000);
 						}
