@@ -33,11 +33,12 @@ public class AlarmActivity extends DeskClock
 	KlaxonSettings mKlaxonSettings;
 	SensorManager mSensorManager;
 	SensorListener mListener;
-	int mSnoozeTime;
+	int mSnoozeTime = 0;
 	GregorianCalendar mExpireTime;
 	MenuItem mOffMenuItem;
 	TextView mNextAlarm;
 	SQLiteDatabase mDatabase;
+	String mName = "FATAL ERROR! UNKNOWN ALARM!";
 
 	static boolean isFlat(int orientation)
 	{
@@ -136,10 +137,15 @@ public class AlarmActivity extends DeskClock
 		{
 			Intent intent = getIntent();
 			long alarmId = intent.getLongExtra(AlarmSettings.GEN_FIELD__ID, -1);
+			Log.i(String.format("Showing Alarm Activitiy for Alarm ID %d.", alarmId));
 			mDatabase = AlarmSettings.getDatabase(this);
 			mSettings = AlarmSettings.getAlarmSettingsById(this, mDatabase, alarmId);
 			mKlaxonSettings = new KlaxonSettings(this);
-			mSnoozeTime = mSettings.getSnoozeTime();
+			if (mSettings != null)
+			{
+				mSnoozeTime = mSettings.getSnoozeTime();
+				mName = mSettings.getName();
+			}
 		}
 	}
 	
@@ -158,9 +164,8 @@ public class AlarmActivity extends DeskClock
 		{
 		}
 		
-		String name = mSettings.getName();
-		if (name != null && !"".equals(name))
-			setTitle(name);
+		if (mName != null && !"".equals(mName))
+			setTitle(mName);
 
 		mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
 
@@ -179,7 +184,7 @@ public class AlarmActivity extends DeskClock
 		GregorianCalendar now = new GregorianCalendar();
 		if (mSnoozeEnd == null || now.after(mSnoozeEnd))
 		{
-			mNextAlarm.setText(mSettings.getName());
+			mNextAlarm.setText(mName);
 			return;
 		}
 

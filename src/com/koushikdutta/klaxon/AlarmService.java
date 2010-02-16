@@ -37,6 +37,12 @@ public class AlarmService extends Service {
 	double mCurVolume = 0;
 	Runnable mVolumeRunnable;
 	NotificationManager mNotificationManager;
+	long mId = -1;
+	int mSnoozeTime = 10;
+	String mName = "Alarm";
+	boolean mVibrateEnabled = true;
+	int mVolumeRamp = 20;
+	int mMaxVolume = 100;
 
 	@Override
 	public void onCreate() {
@@ -64,16 +70,28 @@ public class AlarmService extends Service {
 	{
 		if (mDatabase == null)
 		{
-			long alarmId = intent.getLongExtra(AlarmSettings.GEN_FIELD__ID, -1);
+			mId = intent.getLongExtra(AlarmSettings.GEN_FIELD__ID, -1);
+			Log.i(String.format("Initializing Alarm Service with Alarm ID %d", mId));
 			mDatabase = AlarmSettings.getDatabase(this);
-			mSettings = AlarmSettings.getAlarmSettingsById(this, mDatabase, alarmId);
+			mSettings = AlarmSettings.getAlarmSettingsById(this, mDatabase, mId);
 			mKlaxonSettings = new KlaxonSettings(this);
 			mAudioManager = (AudioManager) getSystemService(AUDIO_SERVICE);
 			mKeyguardManager = (KeyguardManager) getSystemService(KEYGUARD_SERVICE);
 			mVibrator = (Vibrator) getSystemService(VIBRATOR_SERVICE);
 			mNotificationManager = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
 
-			Uri ringtoneUri = mSettings.getRingtone();
+			Uri ringtoneUri = null; 
+			if (mSettings != null)
+			{
+				mSettings.getRingtone();
+				mSnoozeTime = mSettings.getSnoozeTime();
+				mName = mSettings.getName();
+				if (mName == null)
+					mName = "Alarm";
+				mVibrateEnabled = mSettings.getVibrateEnabled();
+				mVolumeRamp = mSettings.getVolumeRamp();
+				mMaxVolume = mSettings.getVolume();
+			}
 			try
 			{
 				if (ringtoneUri != null)
@@ -91,7 +109,7 @@ public class AlarmService extends Service {
 			
 			String notifytext = getString(R.string.app_name);
 			String title = getString(R.string.alarm_ticker);
-			String content = mSettings.getName() + " - " + AlarmSettings.formatLongDayAndTime(this, new Date(intent.getLongExtra("AlarmTime", 0)));
+			String content = mName + " - " + AlarmSettings.formatLongDayAndTime(this, new Date(intent.getLongExtra("AlarmTime", 0)));
 			Notification notification = new Notification(R.drawable.icon, notifytext, 0);
 			notification.flags = Notification.FLAG_NO_CLEAR | Notification.FLAG_ONGOING_EVENT | Notification.FLAG_SHOW_LIGHTS;
 			PendingIntent pending = PendingIntent.getActivity(this, 0, getAlarmActivityIntent(), Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -102,7 +120,7 @@ public class AlarmService extends Service {
 
 	void snoozeAlarm()
 	{
-		int snoozeTime = mSettings.getSnoozeTime();
+		int snoozeTime = mSnoozeTime;
 		if (snoozeTime == 0)
 			return;
 		Log.v("snoozeAlarm");
@@ -114,9 +132,12 @@ public class AlarmService extends Service {
 		mExpireTime = null;
 		mSnoozeEnd = new GregorianCalendar();
 		mSnoozeEnd.add(Calendar.MINUTE, snoozeTime);
-		mSettings.setNextSnooze(mSnoozeEnd.getTimeInMillis());
-		mSettings.setEnabled(true);
-		mSettings.update();
+		if (mSettings != null)
+		{
+			mSettings.setNextSnooze(mSnoozeEnd.getTimeInMillis());
+			mSettings.setEnabled(true);
+			mSettings.update();
+		}
 		AlarmSettings.scheduleNextAlarm(this);
 	}
 
@@ -125,18 +146,16 @@ public class AlarmService extends Service {
 	{
 		disableKeyguard();
 		final double streamMaxVolume = mAudioManager.getStreamMaxVolume(AUDIO_STREAM);
-		final double volumeRamp = mSettings.getVolumeRamp();
-		final double maxVolume = mSettings.getVolume();
-		if (volumeRamp == 0)
+		if (mVolumeRamp == 0)
 		{
-			double convertedVolume = streamMaxVolume * maxVolume / 100d;
+			double convertedVolume = streamMaxVolume * mMaxVolume / 100d;
 			mAudioManager.setStreamVolume(AUDIO_STREAM, (int)convertedVolume, 0);
 		}
 		else
 		{
 			mAudioManager.setStreamVolume(AUDIO_STREAM, 0, 0);
 			mStopVolumeAdjust = false;
-			final double volumeStep = maxVolume / volumeRamp;
+			final double volumeStep = mMaxVolume / mVolumeRamp;
 			mCurVolume = 0;
 
 			if (mVolumeRunnable == null)
@@ -152,7 +171,7 @@ public class AlarmService extends Service {
 							mCurVolume += volumeStep;
 							double convertedVolume = streamMaxVolume * mCurVolume / 100d;
 							mAudioManager.setStreamVolume(AUDIO_STREAM, (int)convertedVolume, 0);
-							if (mCurVolume >= 100)
+							if (mCurVolume >= mMaxVolume)
 								return;
 							mHandler.postDelayed(this, 1000);
 						}
@@ -166,7 +185,7 @@ public class AlarmService extends Service {
 			mHandler.postDelayed(mVolumeRunnable, 1000);
 		}
 
-		if (mSettings.getVibrateEnabled())
+		if (mVibrateEnabled)
 			mVibrator.vibrate(new long[] { 5000, 1000 }, 0);
 
 		AlarmAlertWakeLock.acquire(this);
@@ -181,7 +200,7 @@ public class AlarmService extends Service {
 	Intent getAlarmActivityIntent()
 	{
 		Intent i = new Intent(this, AlarmActivity.class);
-		i.putExtra(AlarmSettings.GEN_FIELD__ID, mSettings.get_Id());
+		i.putExtra(AlarmSettings.GEN_FIELD__ID, mId);
 		i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 		return i;
 	}
@@ -205,10 +224,13 @@ public class AlarmService extends Service {
 	{
 		super.onDestroy();
 		Log.v("onDestroy");
-		mSettings.setNextSnooze(0);
-		if (mSettings.isOneShot())
-			mSettings.setEnabled(false);
-		mSettings.update();
+		if (mSettings != null)
+		{
+			mSettings.setNextSnooze(0);
+			if (mSettings.isOneShot())
+				mSettings.setEnabled(false);
+			mSettings.update();
+		}
 		AlarmSettings.scheduleNextAlarm(this);
 		cleanupAlarm();
 		enableKeyguard();
