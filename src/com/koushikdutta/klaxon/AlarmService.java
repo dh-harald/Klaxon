@@ -83,7 +83,7 @@ public class AlarmService extends Service {
 			Uri ringtoneUri = null; 
 			if (mSettings != null)
 			{
-				mSettings.getRingtone();
+				ringtoneUri = mSettings.getRingtone();
 				mSnoozeTime = mSettings.getSnoozeTime();
 				mName = mSettings.getName();
 				if (mName == null)
