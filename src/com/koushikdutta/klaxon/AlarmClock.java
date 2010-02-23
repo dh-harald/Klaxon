@@ -71,7 +71,6 @@ public class AlarmClock extends Activity implements OnItemClickListener {
                 : R.drawable.ic_indicator_off);
         alarm.setEnabled(enabled);
         alarm.update();
-		AlarmSettings.scheduleNextAlarm(this);
     }
 
     private class AlarmTimeAdapter extends CursorAdapter {
@@ -164,7 +163,6 @@ public class AlarmClock extends Activity implements OnItemClickListener {
                                     public void onClick(DialogInterface d,
                                             int w) {
                                     	AlarmSettings.getAlarmSettingsById(AlarmClock.this, mDatabase, id).delete();
-                                    	AlarmSettings.scheduleNextAlarm(AlarmClock.this);
                                     	mCursor.requery();
                                     }
                                 })
@@ -179,7 +177,6 @@ public class AlarmClock extends Activity implements OnItemClickListener {
     			alarm.populate(c);
     			alarm.setEnabled(!alarm.getEnabled());
     			alarm.update();
-    			AlarmSettings.scheduleNextAlarm(this);
                 return true;
 
             case R.id.edit_alarm:

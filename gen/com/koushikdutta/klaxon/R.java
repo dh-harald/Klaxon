@@ -115,6 +115,7 @@ public final class R {
         public static final int menu_item_add_alarm=0x7f0b0032;
         public static final int menu_item_alarms=0x7f0b0036;
         public static final int menu_item_desk_clock=0x7f0b0031;
+        public static final int menu_item_fix_weather=0x7f0b0037;
         public static final int music_button=0x7f0b001c;
         public static final int nextAlarm=0x7f0b0013;
         public static final int nightmode_button=0x7f0b0014;
@@ -196,6 +197,7 @@ public final class R {
          the alarm is set to repeat every day 
          */
         public static final int every_day=0x7f070004;
+        public static final int fix_weather=0x7f070018;
         public static final int gallery_button_description=0x7f070007;
         public static final int home_button_description=0x7f07000a;
         /**  Menu item on Alarm Clock screen: Desk clock 

@@ -37,8 +37,8 @@
 		<item>50 seconds</item>
 		<item>60 seconds</item>
 		<item>70 seconds</item>
+		<item>80 seconds</item>
 		<item>90 seconds</item>
-		<item>100 seconds</item>
 	</string-array>
 	
 	
@@ -101,4 +101,6 @@
     <string name="settings">Settings</string>
     
     <string name="alarm_ticker">Alarm</string>
+    
+    <string name="fix_weather">Fix Weather</string>
 </resources>

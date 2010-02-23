@@ -41,8 +41,8 @@ public class AlarmService extends Service {
 	int mSnoozeTime = 10;
 	String mName = "Alarm";
 	boolean mVibrateEnabled = true;
-	int mVolumeRamp = 20;
-	int mMaxVolume = 100;
+	double mVolumeRamp = 20;
+	double mMaxVolume = 100;
 
 	@Override
 	public void onCreate() {
@@ -138,7 +138,6 @@ public class AlarmService extends Service {
 			mSettings.setEnabled(true);
 			mSettings.update();
 		}
-		AlarmSettings.scheduleNextAlarm(this);
 	}
 
 	
@@ -231,7 +230,6 @@ public class AlarmService extends Service {
 				mSettings.setEnabled(false);
 			mSettings.update();
 		}
-		AlarmSettings.scheduleNextAlarm(this);
 		cleanupAlarm();
 		enableKeyguard();
 		mNotificationManager.cancelAll();

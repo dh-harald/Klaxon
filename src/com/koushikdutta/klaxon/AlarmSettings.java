@@ -40,6 +40,24 @@ public class AlarmSettings extends AlarmSettingsBase {
 		@Override
 		public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 			createDatabase(db);
+			return;
+			/*
+			// see which upgrade paths we can handle
+			switch (newVersion)
+			{
+			case 1:
+			case 2:
+				break;
+			default:
+				createDatabase(db);
+				return;
+			}
+			
+			if (oldVersion < 2)
+			{
+				
+			}
+			*/
 		}
 		
 		private void createDatabase(SQLiteDatabase db)
@@ -127,6 +145,7 @@ public class AlarmSettings extends AlarmSettingsBase {
 	public void delete()
 	{
 		Gen_delete(mDatabase);
+		scheduleNextAlarm(mContext);
 	}
 	
 	public boolean[] getAlarmDays()
@@ -164,7 +183,9 @@ public class AlarmSettings extends AlarmSettingsBase {
 	
 	public boolean insert()
 	{
-		return Gen_insert(mDatabase);
+		boolean ret = Gen_insert(mDatabase);
+		scheduleNextAlarm(mContext);
+		return ret;
 	}
 	
 	public Uri getRingtone()
@@ -300,6 +321,7 @@ public class AlarmSettings extends AlarmSettingsBase {
 	public void update()
 	{
 		Gen_update(mDatabase);
+		scheduleNextAlarm(mContext);
 	}
 	
 	

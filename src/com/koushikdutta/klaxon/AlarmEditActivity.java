@@ -225,7 +225,6 @@ public class AlarmEditActivity extends PreferenceActivity
 	void scheduleNextAlarm()
 	{
 		mSettings.update();
-		AlarmSettings.scheduleNextAlarm(AlarmEditActivity.this);
 
 		Long next = mSettings.getNextAlarmTime();
 		String toastText;
