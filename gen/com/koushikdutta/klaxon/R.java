@@ -69,12 +69,13 @@ public final class R {
         public static final int ic_menu_alarms=0x7f02002b;
         public static final int ic_menu_clock_face=0x7f02002c;
         public static final int ic_menu_desk_clock=0x7f02002d;
-        public static final int ic_round_brightness=0x7f02002e;
-        public static final int ic_widget_analog_clock=0x7f02002f;
-        public static final int icon=0x7f020030;
-        public static final int incall_round_button=0x7f020031;
-        public static final int indicator_clock_onoff=0x7f020032;
-        public static final int stat_notify_alarm=0x7f020033;
+        public static final int ic_menu_revert=0x7f02002e;
+        public static final int ic_round_brightness=0x7f02002f;
+        public static final int ic_widget_analog_clock=0x7f020030;
+        public static final int icon=0x7f020031;
+        public static final int incall_round_button=0x7f020032;
+        public static final int indicator_clock_onoff=0x7f020033;
+        public static final int stat_notify_alarm=0x7f020034;
     }
     public static final class id {
         public static final int AlarmList=0x7f0b002d;

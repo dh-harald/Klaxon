@@ -151,6 +151,9 @@ public class DeskClock extends Activity {
     private Random mRNG;
 
     private PendingIntent mMidnightIntent;
+    
+    private KlaxonSettings mKlaxonSettings;
+    private boolean mFixWeather = false;
 
     private final BroadcastReceiver mIntentReceiver = new BroadcastReceiver() {
         @Override
@@ -387,7 +390,7 @@ public class DeskClock extends Activity {
             final int colTemp = cur.getColumnIndexOrThrow("temperature");
             final int colHigh = cur.getColumnIndexOrThrow("highTemperature");
             final int colLow = cur.getColumnIndexOrThrow("lowTemperature");
-
+            
             mWeatherCurrentTemperatureString =
                 cur.isNull(colTemp)
                     ? "\u2014"
@@ -400,6 +403,22 @@ public class DeskClock extends Activity {
                 cur.isNull(colLow)
                     ? "\u2014"
                     : String.format("%d\u00b0", cur.getInt(colLow));
+
+            if (mFixWeather)
+            {
+                mWeatherCurrentTemperatureString =
+                    cur.isNull(colTemp)
+                        ? "\u2014"
+                        : String.format("%d\u00b0", (int)((double)cur.getInt(colTemp) * 1.8d + 32d));
+                mWeatherHighTemperatureString =
+                    cur.isNull(colHigh)
+                        ? "\u2014"
+                        : String.format("%d\u00b0", (int)((double)cur.getInt(colHigh) * 1.8d + 32d));
+                mWeatherLowTemperatureString =
+                    cur.isNull(colLow)
+                        ? "\u2014"
+                        : String.format("%d\u00b0", (int)((double)cur.getInt(colLow) * 1.8d + 32d));
+            }
         } else {
             Log.w("No weather information available (cur="
                 + cur +")");
@@ -746,6 +765,10 @@ public class DeskClock extends Activity {
 			settings.insert();
 			AlarmSettings.editAlarm(this, settings.get_Id());
 			return true;
+        } else if (item.getItemId() == R.id.menu_item_fix_weather) {
+        	mFixWeather = !mFixWeather;
+        	mKlaxonSettings.setFixWeather(mFixWeather);
+        	refreshWeather();
         }
         return false;
     }
@@ -765,6 +788,8 @@ public class DeskClock extends Activity {
 		super.onCreate(icicle);
              
 		mDatabase = AlarmSettings.getDatabase(this);
+		mKlaxonSettings = new KlaxonSettings(this);
+		mFixWeather = mKlaxonSettings.getFixWeather();
 
         mRNG = new Random();
 

@@ -37,4 +37,15 @@ public class KlaxonSettings
 		mEditor.putBoolean("IsFirstStart", value);
 		mEditor.commit();
 	}
+	
+	public void setFixWeather(boolean fix)
+	{
+		mEditor.putBoolean("FixWeather", fix);
+		mEditor.commit();
+	}
+	
+	public boolean getFixWeather()
+	{
+		return mPreferences.getBoolean("FixWeather", false);
+	}
 }
