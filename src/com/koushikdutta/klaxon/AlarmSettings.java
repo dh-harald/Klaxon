@@ -307,6 +307,7 @@ public class AlarmSettings extends AlarmSettingsBase {
 	 */
 	static void saveNextAlarm(final Context context, String timeString)
 	{
+		Log.i("Scheduled next alarm: " + timeString);
 		Settings.System.putString(context.getContentResolver(), Settings.System.NEXT_ALARM_FORMATTED, timeString);
 	}
 	

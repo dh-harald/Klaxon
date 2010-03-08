@@ -197,6 +197,8 @@ public class AlarmClock extends Activity implements OnItemClickListener {
         mPrefs = getSharedPreferences(PREFERENCES, 0);
         mDatabase = AlarmSettings.getDatabase(this);
         mCursor = AlarmSettings.getCursor(mDatabase);
+        
+        AlarmSettings.scheduleNextAlarm(this);
 
         updateLayout();
     }

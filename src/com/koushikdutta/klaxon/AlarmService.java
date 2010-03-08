@@ -60,6 +60,10 @@ public class AlarmService extends Service {
 		{
 			snoozeAlarm();
 		}
+		else if (intent.getBooleanExtra("stop", false))
+		{
+			stopSelf();
+		}
 		else
 		{
 			startAlarm();

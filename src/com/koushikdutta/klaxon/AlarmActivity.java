@@ -229,7 +229,8 @@ public class AlarmActivity extends DeskClock
 		Log.v("stopAlarm");
 		Intent i = new Intent();
 		i.setClassName(this, "com.koushikdutta.klaxon.AlarmService");
-		stopService(i);
+		i.putExtra("stop", true);
+		startService(i);
 		finish();
 	}
 

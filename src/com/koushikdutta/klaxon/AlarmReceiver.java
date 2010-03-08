@@ -33,9 +33,13 @@ public class AlarmReceiver extends BroadcastReceiver
 	@Override
 	public void onReceive(Context context, Intent intent)
 	{
-		Log.i("AlarmReceiver received has received a broadcast.");
+		Log.i("AlarmReceiver received has received a broadcast");
+		if (intent.getAction() != null)
+			Log.i(intent.getAction());
 		try
 		{
+			if (intent.getAction() != null && !intent.getAction().equals(AlarmSettings.ALARM_ALERT_ACTION))
+				return;
 			long alarmTime = intent.getLongExtra("AlarmTime", 0);
 			long alarmId = intent.getLongExtra(AlarmSettings.GEN_FIELD__ID, -1);
 			GregorianCalendar cal = new GregorianCalendar(Locale.getDefault());
@@ -45,7 +49,7 @@ public class AlarmReceiver extends BroadcastReceiver
 				return;
 			}
 			
-			AlarmAlertWakeLock.acquire(context);
+			AlarmAlertWakeLock.acquirePartial(context);
 			AlarmSettings settings = AlarmSettings.getAlarmSettingsById(context, alarmId);
 			Log.i("Sounding alarm " + settings.getName());
 			if (settings.isOneShot())

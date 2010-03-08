@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-	package="com.koushikdutta.klaxon" android:versionCode="425" android:versionName="4.2.5">
+	package="com.koushikdutta.klaxon" android:versionCode="427" android:versionName="4.2.7">
 
 	<uses-sdk android:minSdkVersion="3" />
 	<uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
@@ -56,6 +56,8 @@
 				<action android:name="android.intent.action.BOOT_COMPLETED" />
 				<action android:name="android.intent.action.TIME_SET" />
 				<action android:name="android.intent.action.TIMEZONE_CHANGED" />
+				<action android:name="android.intent.action.PACKAGE_REPLACED" />
+				<action android:name="android.intent.action.DATE_CHANGED" />
 			</intent-filter>
 		</receiver>
 	</application>
