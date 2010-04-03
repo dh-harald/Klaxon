@@ -5,7 +5,7 @@ package com.koushikdutta.klaxon;
 public abstract class AlarmSettingsBase extends com.antlersoft.android.dbimpl.IdImplementationBase implements IAlarmSettings {
 
     public static final String GEN_TABLE_NAME = "ALARMSETTINGS";
-    public static final int GEN_COUNT = 12;
+    public static final int GEN_COUNT = 16;
 
     // Field constants
     public static final String GEN_FIELD__ID = "_id";
@@ -32,6 +32,14 @@ public abstract class AlarmSettingsBase extends com.antlersoft.android.dbimpl.Id
     public static final int GEN_ID_VOLUMERAMP = 10;
     public static final String GEN_FIELD_NAME = "NAME";
     public static final int GEN_ID_NAME = 11;
+    public static final String GEN_FIELD_SLEEPMODE = "SLEEPMODE";
+    public static final int GEN_ID_SLEEPMODE = 12;
+    public static final String GEN_FIELD_SLEEPLEADTIME = "SLEEPLEADTIME";
+    public static final int GEN_ID_SLEEPLEADTIME = 13;
+    public static final String GEN_FIELD_EXPIRETIME = "EXPIRETIME";
+    public static final int GEN_ID_EXPIRETIME = 14;
+    public static final String GEN_FIELD_INTENT = "INTENT";
+    public static final int GEN_ID_INTENT = 15;
 
     // SQL Command for creating the table
     public static String GEN_CREATE = "CREATE TABLE ALARMSETTINGS (" +
@@ -46,7 +54,11 @@ public abstract class AlarmSettingsBase extends com.antlersoft.android.dbimpl.Id
     "NEXTSNOOZE INTEGER," +
     "VOLUME INTEGER," +
     "VOLUMERAMP INTEGER," +
-    "NAME TEXT" +
+    "NAME TEXT," +
+    "SLEEPMODE TEXT," +
+    "SLEEPLEADTIME INTEGER," +
+    "EXPIRETIME INTEGER," +
+    "INTENT TEXT" +
     ")";
 
     // Members corresponding to defined fields
@@ -62,6 +74,10 @@ public abstract class AlarmSettingsBase extends com.antlersoft.android.dbimpl.Id
     private int gen_volume;
     private int gen_volumeRamp;
     private java.lang.String gen_name;
+    private java.lang.String gen_sleepMode;
+    private int gen_sleepLeadTime;
+    private int gen_expireTime;
+    private java.lang.String gen_intent;
 
 
     public String Gen_tableName() { return GEN_TABLE_NAME; }
@@ -91,6 +107,14 @@ public abstract class AlarmSettingsBase extends com.antlersoft.android.dbimpl.Id
     public void setVolumeRamp(int arg_volumeRamp) { gen_volumeRamp = arg_volumeRamp; }
     public java.lang.String getName() { return gen_name; }
     public void setName(java.lang.String arg_name) { gen_name = arg_name; }
+    public java.lang.String getSleepMode() { return gen_sleepMode; }
+    public void setSleepMode(java.lang.String arg_sleepMode) { gen_sleepMode = arg_sleepMode; }
+    public int getSleepLeadTime() { return gen_sleepLeadTime; }
+    public void setSleepLeadTime(int arg_sleepLeadTime) { gen_sleepLeadTime = arg_sleepLeadTime; }
+    public int getExpireTime() { return gen_expireTime; }
+    public void setExpireTime(int arg_expireTime) { gen_expireTime = arg_expireTime; }
+    public java.lang.String getIntent() { return gen_intent; }
+    public void setIntent(java.lang.String arg_intent) { gen_intent = arg_intent; }
 
     public android.content.ContentValues Gen_getValues() {
         android.content.ContentValues values=new android.content.ContentValues();
@@ -106,6 +130,10 @@ public abstract class AlarmSettingsBase extends com.antlersoft.android.dbimpl.Id
         values.put(GEN_FIELD_VOLUME,Integer.toString(this.gen_volume));
         values.put(GEN_FIELD_VOLUMERAMP,Integer.toString(this.gen_volumeRamp));
         values.put(GEN_FIELD_NAME,this.gen_name);
+        values.put(GEN_FIELD_SLEEPMODE,this.gen_sleepMode);
+        values.put(GEN_FIELD_SLEEPLEADTIME,Integer.toString(this.gen_sleepLeadTime));
+        values.put(GEN_FIELD_EXPIRETIME,Integer.toString(this.gen_expireTime));
+        values.put(GEN_FIELD_INTENT,this.gen_intent);
         return values;
     }
 
@@ -132,6 +160,10 @@ public abstract class AlarmSettingsBase extends com.antlersoft.android.dbimpl.Id
         result[9] = cursor.getColumnIndex(GEN_FIELD_VOLUME);
         result[10] = cursor.getColumnIndex(GEN_FIELD_VOLUMERAMP);
         result[11] = cursor.getColumnIndex(GEN_FIELD_NAME);
+        result[12] = cursor.getColumnIndex(GEN_FIELD_SLEEPMODE);
+        result[13] = cursor.getColumnIndex(GEN_FIELD_SLEEPLEADTIME);
+        result[14] = cursor.getColumnIndex(GEN_FIELD_EXPIRETIME);
+        result[15] = cursor.getColumnIndex(GEN_FIELD_INTENT);
         return result;
     }
 
@@ -175,6 +207,18 @@ public abstract class AlarmSettingsBase extends com.antlersoft.android.dbimpl.Id
         if ( columnIndices[GEN_ID_NAME] >= 0 && ! cursor.isNull(columnIndices[GEN_ID_NAME])) {
             gen_name = cursor.getString(columnIndices[GEN_ID_NAME]);
         }
+        if ( columnIndices[GEN_ID_SLEEPMODE] >= 0 && ! cursor.isNull(columnIndices[GEN_ID_SLEEPMODE])) {
+            gen_sleepMode = cursor.getString(columnIndices[GEN_ID_SLEEPMODE]);
+        }
+        if ( columnIndices[GEN_ID_SLEEPLEADTIME] >= 0 && ! cursor.isNull(columnIndices[GEN_ID_SLEEPLEADTIME])) {
+            gen_sleepLeadTime = (int)cursor.getInt(columnIndices[GEN_ID_SLEEPLEADTIME]);
+        }
+        if ( columnIndices[GEN_ID_EXPIRETIME] >= 0 && ! cursor.isNull(columnIndices[GEN_ID_EXPIRETIME])) {
+            gen_expireTime = (int)cursor.getInt(columnIndices[GEN_ID_EXPIRETIME]);
+        }
+        if ( columnIndices[GEN_ID_INTENT] >= 0 && ! cursor.isNull(columnIndices[GEN_ID_INTENT])) {
+            gen_intent = cursor.getString(columnIndices[GEN_ID_INTENT]);
+        }
     }
 
     /**
@@ -193,5 +237,9 @@ public abstract class AlarmSettingsBase extends com.antlersoft.android.dbimpl.Id
         gen_volume = (int)values.getAsInteger(GEN_FIELD_VOLUME);
         gen_volumeRamp = (int)values.getAsInteger(GEN_FIELD_VOLUMERAMP);
         gen_name = values.getAsString(GEN_FIELD_NAME);
+        gen_sleepMode = values.getAsString(GEN_FIELD_SLEEPMODE);
+        gen_sleepLeadTime = (int)values.getAsInteger(GEN_FIELD_SLEEPLEADTIME);
+        gen_expireTime = (int)values.getAsInteger(GEN_FIELD_EXPIRETIME);
+        gen_intent = values.getAsString(GEN_FIELD_INTENT);
     }
 }

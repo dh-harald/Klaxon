@@ -4,11 +4,13 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 
+import android.app.AlarmManager;
 import android.app.KeyguardManager;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
 import android.media.AudioManager;
@@ -17,6 +19,7 @@ import android.net.Uri;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Vibrator;
+import android.provider.Settings;
 
 public class AlarmService extends Service {
 	
@@ -30,9 +33,7 @@ public class AlarmService extends Service {
 	AudioManager mAudioManager;
 	final int AUDIO_STREAM = AudioManager.STREAM_MUSIC;
 	GregorianCalendar mSnoozeEnd;
-	GregorianCalendar mExpireTime;
 	boolean mStopVolumeAdjust = false;
-	static final int EXPIRE_TIME = 30;
 	Handler mHandler = new Handler();
 	double mCurVolume = 0;
 	Runnable mVolumeRunnable;
@@ -43,25 +44,33 @@ public class AlarmService extends Service {
 	boolean mVibrateEnabled = true;
 	double mVolumeRamp = 20;
 	double mMaxVolume = 100;
-
+	int mExpireTime = 0;
+	PendingIntent mPendingExpire;
+	AlarmManager mAlarmManager;
+	static final String LOGTAG = "AlarmService";
+	
 	@Override
 	public void onCreate() {
 		AlarmAlertWakeLock.acquire(this);
+		AlarmSettings.scheduleNextAlarm(this);
 		super.onCreate();
 	}
 	
 	@Override
 	public void onStart(Intent intent, int startId) {
 		super.onStart(intent, startId);
+		AlarmSettings.scheduleNextAlarm(this);
 		
 		init(intent);
 		
 		if (intent.getBooleanExtra("snooze", false))
 		{
+			Log.i("Snooze intent received.");
 			snoozeAlarm();
 		}
 		else if (intent.getBooleanExtra("stop", false))
 		{
+			Log.i("Stop intent received.");
 			stopSelf();
 		}
 		else
@@ -83,10 +92,14 @@ public class AlarmService extends Service {
 			mKeyguardManager = (KeyguardManager) getSystemService(KEYGUARD_SERVICE);
 			mVibrator = (Vibrator) getSystemService(VIBRATOR_SERVICE);
 			mNotificationManager = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
+			mAlarmManager = (AlarmManager)getSystemService(ALARM_SERVICE);
 
 			Uri ringtoneUri = null; 
 			if (mSettings != null)
 			{
+				if (mSettings.isOneShot())
+					mSettings.setEnabled(false);
+				mExpireTime = mSettings.getExpireTime();
 				ringtoneUri = mSettings.getRingtone();
 				mSnoozeTime = mSettings.getSnoozeTime();
 				mName = mSettings.getName();
@@ -95,6 +108,24 @@ public class AlarmService extends Service {
 				mVibrateEnabled = mSettings.getVibrateEnabled();
 				mVolumeRamp = mSettings.getVolumeRamp();
 				mMaxVolume = mSettings.getVolume();
+				
+				String sleepmode = mSettings.getSleepMode();
+				if (sleepmode.equals("Airplane Mode"))
+				{
+					Settings.System.putInt(getContentResolver(), Settings.System.AIRPLANE_MODE_ON, 0);
+					AudioManager audio = (AudioManager)getSystemService(Context.AUDIO_SERVICE);
+					audio.setRingerMode(AudioManager.RINGER_MODE_NORMAL);
+				}
+				else if (sleepmode.equals("Vibrate"))
+				{
+					AudioManager audio = (AudioManager)getSystemService(Context.AUDIO_SERVICE);
+					audio.setRingerMode(AudioManager.RINGER_MODE_NORMAL);
+				}
+				else if (sleepmode.equals("Silent"))
+				{
+					AudioManager audio = (AudioManager)getSystemService(Context.AUDIO_SERVICE);
+					audio.setRingerMode(AudioManager.RINGER_MODE_NORMAL);
+				}
 			}
 			try
 			{
@@ -133,7 +164,6 @@ public class AlarmService extends Service {
 		mPlayer.pause();
 		mStopVolumeAdjust = true;
 		mVibrator.vibrate(300);
-		mExpireTime = null;
 		mSnoozeEnd = new GregorianCalendar();
 		mSnoozeEnd.add(Calendar.MINUTE, snoozeTime);
 		if (mSettings != null)
@@ -142,6 +172,13 @@ public class AlarmService extends Service {
 			mSettings.setEnabled(true);
 			mSettings.update();
 		}
+		cancelExpire();
+	}
+	
+	void cancelExpire()
+	{
+		if (mAlarmManager != null && mPendingExpire != null)
+			mAlarmManager.cancel(mPendingExpire);
 	}
 
 	
@@ -192,8 +229,15 @@ public class AlarmService extends Service {
 			mVibrator.vibrate(new long[] { 5000, 1000 }, 0);
 
 		AlarmAlertWakeLock.acquire(this);
-		mExpireTime = new GregorianCalendar();
-		mExpireTime.add(Calendar.MINUTE, EXPIRE_TIME);
+		if (mExpireTime > 0)
+		{
+			GregorianCalendar greg = new GregorianCalendar();
+			greg.add(GregorianCalendar.MINUTE, mExpireTime);
+			Intent intent = new Intent(this, AlarmService.class);
+			intent.putExtra("stop", true);
+			mPendingExpire = PendingIntent.getService(this, 123, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+			mAlarmManager.set(AlarmManager.RTC_WAKEUP, greg.getTimeInMillis(), mPendingExpire);
+		}
 		mPlayer.start();
 		mPlayer.seekTo(0);
 		
@@ -212,7 +256,8 @@ public class AlarmService extends Service {
 	{
 		Log.v("cleanupAlarm");
 		mStopVolumeAdjust = true;
-		mVibrator.cancel();
+		if (mVibrator != null)
+			mVibrator.cancel();
 		if (mPlayer != null)
 		{
 			mPlayer.stop();
@@ -234,6 +279,7 @@ public class AlarmService extends Service {
 				mSettings.setEnabled(false);
 			mSettings.update();
 		}
+		cancelExpire();
 		cleanupAlarm();
 		enableKeyguard();
 		mNotificationManager.cancelAll();

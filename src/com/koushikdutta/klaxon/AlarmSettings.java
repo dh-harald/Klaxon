@@ -26,7 +26,7 @@ public class AlarmSettings extends AlarmSettingsBase {
 	static class KlaxonDatabaseHelper extends SQLiteOpenHelper
 	{
 	    private static final String DATABASE_NAME = "klaxon.db";
-	    private static final int DATABASE_VERSION = 1;
+	    private static final int DATABASE_VERSION = 2;
 
 	    public KlaxonDatabaseHelper(Context context) {
 			super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -39,25 +39,14 @@ public class AlarmSettings extends AlarmSettingsBase {
 
 		@Override
 		public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-			createDatabase(db);
-			return;
-			/*
-			// see which upgrade paths we can handle
-			switch (newVersion)
+			if (oldVersion == 1)
 			{
-			case 1:
-			case 2:
-				break;
-			default:
-				createDatabase(db);
-				return;
+				db.execSQL("ALTER TABLE ALARMSETTINGS ADD COLUMN SLEEPLEADTIME");
+				db.execSQL("ALTER TABLE ALARMSETTINGS ADD COLUMN SLEEPMODE");
+				db.execSQL("ALTER TABLE ALARMSETTINGS ADD COLUMN EXPIRETIME");
+				db.execSQL("ALTER TABLE ALARMSETTINGS ADD COLUMN INTENT");
+				oldVersion = 2;
 			}
-			
-			if (oldVersion < 2)
-			{
-				
-			}
-			*/
 		}
 		
 		private void createDatabase(SQLiteDatabase db)
@@ -203,7 +192,9 @@ public class AlarmSettings extends AlarmSettingsBase {
 		else
 			setRingtoneBase(uri.toString());
 	}
-	public Long getNextAlarmTime()
+	
+	boolean mIsSleepMode = false;
+	public Long getNextAlarmTime(boolean includeFlightModes)
 	{
 		if (!getEnabled())
 			return null;
@@ -216,6 +207,7 @@ public class AlarmSettings extends AlarmSettingsBase {
 			first.add(Calendar.DATE, 1);
 		boolean[] daysOfWeek = getAlarmDays();
 		boolean hasDays = !isOneShot(daysOfWeek);
+		mIsSleepMode = false;
 		for (int i = 0; i < 7; i++)
 		{
 			GregorianCalendar cur = (GregorianCalendar) first.clone();
@@ -225,6 +217,17 @@ public class AlarmSettings extends AlarmSettingsBase {
 				continue;
 			if (nextSnooze > now.getTimeInMillis() && nextSnooze < cur.getTimeInMillis())
 				return nextSnooze;
+			if (includeFlightModes && getSleepLeadTime() > 0)
+			{
+				GregorianCalendar pre = (GregorianCalendar)cur.clone();
+				pre.add(GregorianCalendar.HOUR_OF_DAY, -getSleepLeadTime());
+				long preMs = pre.getTimeInMillis();
+				if (preMs > now.getTimeInMillis() && preMs < cur.getTimeInMillis())
+				{
+					mIsSleepMode = true;
+					return preMs;
+				}
+			}
 			return cur.getTimeInMillis();
 		}
 		return null;
@@ -240,7 +243,7 @@ public class AlarmSettings extends AlarmSettingsBase {
 		ArrayList<AlarmSettings> alarmSettings = getAlarms(context);
 		for (AlarmSettings settings : alarmSettings)
 		{
-			Long alarmTime = settings.getNextAlarmTime();
+			Long alarmTime = settings.getNextAlarmTime(true);
 			if (alarmTime == null || (minAlarm != null && alarmTime > minAlarm))
 				continue;
 
@@ -248,27 +251,47 @@ public class AlarmSettings extends AlarmSettingsBase {
 			minAlarmSettings = settings;
 		}
 
-		Intent intent = new Intent(ALARM_ALERT_ACTION);
-		if (minAlarmSettings != null)
-		{
-			intent.putExtra(GEN_FIELD__ID, minAlarmSettings.get_Id());
-			intent.putExtra("AlarmTime", (long) minAlarm);
-		}
-
-		PendingIntent sender = PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
-
 		Intent alarmChanged = new Intent("android.intent.action.ALARM_CHANGED");
 		if (minAlarmSettings != null)
 		{
+			Intent intent = new Intent();
+			intent.putExtra(GEN_FIELD__ID, minAlarmSettings.get_Id());
+			intent.putExtra("AlarmTime", (long) minAlarm);
+			intent.putExtra("start", true);
+			PendingIntent sender;
+			if (minAlarmSettings.mIsSleepMode)
+			{
+				intent.putExtra("sleepmode", true);
+				intent.setAction(ALARM_ALERT_ACTION);
+				sender = PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+			}
+			else
+			{
+				intent.setClass(context, AlarmService.class);
+				sender = PendingIntent.getService(context, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+			}
+
 			AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
 			am.set(AlarmManager.RTC_WAKEUP, minAlarm, sender);
 			alarmChanged.putExtra("alarmSet", true);
 
 	        String timeString = formatDayAndTime(context, new java.util.Date(minAlarm));
 			saveNextAlarm(context, timeString);
+			
+			if (minAlarmSettings.mIsSleepMode)
+				Log.i("Sceduled flightmode for " + SimpleDateFormat.getInstance().format(new Date(minAlarmSettings.getNextAlarmTime(true))));
+			else
+				Log.i("Sceduled alarm for " + SimpleDateFormat.getInstance().format(new Date(minAlarmSettings.getNextAlarmTime(true))));
 		}
 		else
 		{
+			AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+			Intent intent = new Intent(ALARM_ALERT_ACTION);
+			PendingIntent sender = PendingIntent.getService(context, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+			am.cancel(sender);
+			intent = new Intent(context, AlarmService.class);
+			sender = PendingIntent.getService(context, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+			am.cancel(sender);
 			alarmChanged.putExtra("alarmSet", false);
 			saveNextAlarm(context, null);
 		}

@@ -41,4 +41,16 @@ public interface IAlarmSettings {
     
     @FieldAccessor
     String getName();
+
+    @FieldAccessor
+    String getSleepMode();
+
+    @FieldAccessor
+    int getSleepLeadTime();
+
+    @FieldAccessor
+    int getExpireTime();
+
+    @FieldAccessor
+    String getIntent();
 }

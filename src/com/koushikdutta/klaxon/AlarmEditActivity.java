@@ -8,9 +8,11 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.TimePickerDialog;
+import android.app.AlertDialog.Builder;
 import android.app.TimePickerDialog.OnTimeSetListener;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.DialogInterface.OnClickListener;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.media.Ringtone;
@@ -21,6 +23,7 @@ import android.preference.CheckBoxPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceScreen;
+import android.preference.Preference.OnPreferenceClickListener;
 import android.provider.MediaStore;
 import android.provider.Settings;
 import android.view.Menu;
@@ -50,6 +53,8 @@ public class AlarmEditActivity extends PreferenceActivity
 	VolumePreference mVolumePref;
 	VolumeRampPreference mVolumeRampPref;
 	CheckBoxPreference mVibrateEnabledPref;
+	Preference mExpirePref;
+	Preference mSleepModePref;
 	boolean mIs24HourMode = false;
 	SQLiteDatabase mDatabase;
 	
@@ -78,6 +83,79 @@ public class AlarmEditActivity extends PreferenceActivity
 		mVolumeRampPref.setAlarmSettings(mSettings);
 		mVibrateEnabledPref = (CheckBoxPreference) findPreference("VibrateEnabled");
 		mVibrateEnabledPref.setChecked(mSettings.getVibrateEnabled());
+		
+		mExpirePref = findPreference("expiretime");
+		mExpirePref.setOnPreferenceClickListener(new OnPreferenceClickListener() {
+			int expireIndex = mSettings.getExpireTime() / 5;
+			public boolean onPreferenceClick(Preference preference) {
+				AlertDialog.Builder builder = new Builder(AlarmEditActivity.this);
+				builder.setTitle(R.string.expire);
+				builder.setSingleChoiceItems(R.array.expire_times, expireIndex, new OnClickListener() {
+					public void onClick(DialogInterface dialog, int which) {
+						expireIndex = which;
+					}
+				});
+				builder.setCancelable(true);
+				builder.setNegativeButton(android.R.string.cancel, null);
+				builder.setPositiveButton(android.R.string.ok, new OnClickListener() {
+					public void onClick(DialogInterface dialog, int which) {
+						mSettings.setExpireTime(expireIndex * 5);
+						mSettings.update();
+						refreshExpireSummary();
+					}
+				});
+				builder.create().show();
+				return true;
+			}
+		});
+		
+		mSleepModePref = findPreference("sleepmode");
+		mSleepModePref.setOnPreferenceClickListener(new OnPreferenceClickListener() {
+			int mFlightModeTime = mSettings.getSleepLeadTime();
+			String mFlightMode = "Silent";
+			
+			public boolean onPreferenceClick(Preference preference) {
+				AlertDialog.Builder builder = new Builder(AlarmEditActivity.this);
+				builder.setTitle(R.string.sleepmode);
+				builder.setSingleChoiceItems(R.array.sleep_mode_times, mFlightModeTime, new OnClickListener() {
+					public void onClick(DialogInterface dialog, int which) {
+						mFlightModeTime = which;
+					}
+				});
+				builder.setNegativeButton(android.R.string.cancel, null);
+				builder.setPositiveButton(android.R.string.ok, new OnClickListener() {
+					public void onClick(DialogInterface dialog, int which) {
+						if (mFlightModeTime == 0)
+						{
+							mSettings.setSleepLeadTime(0);
+							refreshFlightModeSummary();
+							return;
+						}
+						AlertDialog.Builder builder = new Builder(AlarmEditActivity.this);
+						builder.setTitle(R.string.sleepmode);
+						builder.setSingleChoiceItems(R.array.sleep_modes, 0, new OnClickListener() {
+							public void onClick(DialogInterface dialog, int which) {
+								mFlightMode = getResources().getStringArray(R.array.sleep_modes)[which];
+							}
+						});
+						builder.setNegativeButton(android.R.string.cancel, null);
+						builder.setPositiveButton(android.R.string.ok, new OnClickListener() {
+							public void onClick(DialogInterface dialog, int which) {
+								mSettings.setSleepLeadTime(mFlightModeTime);
+								mSettings.setSleepMode(mFlightMode);
+								mSettings.update();
+								scheduleNextAlarm();
+								refreshFlightModeSummary();
+							}
+						});
+						builder.create().show();
+					}
+				});
+				builder.create().show();
+				return true;
+			}
+		});
+		refreshFlightModeSummary();
 
 		refreshNameSummary();
 		refreshTimeSummary();
@@ -86,6 +164,7 @@ public class AlarmEditActivity extends PreferenceActivity
 		refreshSnoozeSummary();
 		refreshVolumeSummary();
 		refreshVolumeRampSummary();
+		refreshExpireSummary();
 
 		mRepeatPref.setOnRepeatChangeListener(new OnRepeatChangeListener()
 		{
@@ -128,6 +207,33 @@ public class AlarmEditActivity extends PreferenceActivity
 		
 		Toast tipToast = Toast.makeText(this, "Tip: You can create a one shot alarm by not selecting any Repeat days.", Toast.LENGTH_LONG);
 		tipToast.show();
+	}
+	
+	void refreshFlightModeSummary()
+	{
+		int flightModeTime = mSettings.getSleepLeadTime();
+		String flightMode = mSettings.getSleepMode();
+		if (flightModeTime == 0 || flightMode == null || (!flightMode.equals("Airplane Mode") && !flightMode.equals("Silent") && !flightMode.equals("Vibrate")))
+		{
+			mSleepModePref.setSummary(R.string.flight_mode_off);
+		}
+		else
+		{
+			mSleepModePref.setSummary(getString(R.string.sleep_mode_summary, flightMode, flightModeTime));
+		}
+	}
+	
+	void refreshExpireSummary()
+	{
+		int expire = mSettings.getExpireTime();
+		if (expire == 0)
+		{
+			mExpirePref.setSummary(R.string.never_expire);
+		}
+		else
+		{
+			mExpirePref.setSummary(getString(R.string.expires_after, expire));
+		}
 	}
 
 	void refreshRepeatSummary()
@@ -226,7 +332,7 @@ public class AlarmEditActivity extends PreferenceActivity
 	{
 		mSettings.update();
 
-		Long next = mSettings.getNextAlarmTime();
+		Long next = mSettings.getNextAlarmTime(false);
 		String toastText;
 		if (next == null)
 		{

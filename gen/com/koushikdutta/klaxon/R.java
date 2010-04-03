@@ -17,6 +17,9 @@ public final class R {
     public static final class array {
         public static final int alarm_volumes=0x7f080002;
         public static final int days_of_week=0x7f080000;
+        public static final int expire_times=0x7f080004;
+        public static final int sleep_mode_times=0x7f080006;
+        public static final int sleep_modes=0x7f080005;
         public static final int snooze_times=0x7f080001;
         public static final int volume_ramps=0x7f080003;
     }
@@ -165,6 +168,7 @@ public final class R {
         /**  Menu item on Alarm Clock screen: Add alarm 
          */
         public static final int add_alarm=0x7f07000f;
+        public static final int advanced=0x7f07001d;
         public static final int alarm_button_description=0x7f070006;
         /**  Title for AlarmClock activity 
          */
@@ -198,7 +202,10 @@ public final class R {
          the alarm is set to repeat every day 
          */
         public static final int every_day=0x7f070004;
+        public static final int expire=0x7f07001b;
+        public static final int expires_after=0x7f07001a;
         public static final int fix_weather=0x7f070018;
+        public static final int flight_mode_off=0x7f07001e;
         public static final int gallery_button_description=0x7f070007;
         public static final int home_button_description=0x7f07000a;
         /**  Menu item on Alarm Clock screen: Desk clock 
@@ -213,11 +220,14 @@ public final class R {
          the alarm is set to never repeat 
          */
         public static final int never=0x7f070005;
+        public static final int never_expire=0x7f070019;
         public static final int nightmode_button_description=0x7f070009;
         public static final int no_alarm_set=0x7f070002;
         /**  Menu item title for general Alarm Clock Settings 
          */
         public static final int settings=0x7f070016;
+        public static final int sleep_mode_summary=0x7f07001f;
+        public static final int sleepmode=0x7f07001c;
         /**  What to show the user if the weather widget exists but fails to
          respond. This is a sign of an error; if the weather widget is not
          present on the device, we show nothing at all. 

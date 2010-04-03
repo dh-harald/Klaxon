@@ -33,4 +33,7 @@
 	<Preference android:key="alarm" android:title="Ringtone" />
 	<CheckBoxPreference android:key="VibrateEnabled"
 		android:title="Vibrate Enabled" />
+	<Preference android:key="expiretime" android:title="@string/expire" />
+	<PreferenceCategory android:title="@string/advanced" />
+	<Preference android:key="sleepmode" android:title="@string/sleepmode" />
 </PreferenceScreen>

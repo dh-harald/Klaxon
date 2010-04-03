@@ -16,13 +16,11 @@
 
 package com.koushikdutta.klaxon;
 
-import java.util.GregorianCalendar;
-import java.util.Locale;
-
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.database.sqlite.SQLiteDatabase;
+import android.media.AudioManager;
+import android.provider.Settings;
 
 /**
  * Glue class: connects AlarmAlert IntentReceiver to AlarmAlert activity. Passes
@@ -40,24 +38,30 @@ public class AlarmReceiver extends BroadcastReceiver
 		{
 			if (intent.getAction() != null && !intent.getAction().equals(AlarmSettings.ALARM_ALERT_ACTION))
 				return;
-			long alarmTime = intent.getLongExtra("AlarmTime", 0);
-			long alarmId = intent.getLongExtra(AlarmSettings.GEN_FIELD__ID, -1);
-			GregorianCalendar cal = new GregorianCalendar(Locale.getDefault());
-			if (alarmId == -1 || alarmTime > cal.getTimeInMillis())
+			if (intent.getBooleanExtra("sleepmode", false))
 			{
-				Log.e("Invalid alarmId (" + alarmId + ") or alarmTime (" + alarmTime + ")");
-				return;
+				long alarmId = intent.getLongExtra(AlarmSettings.GEN_FIELD__ID, -1);
+				AlarmSettings settings = AlarmSettings.getAlarmSettingsById(context, alarmId);
+				if (settings == null)
+					return;
+				String sleepmode = settings.getSleepMode();
+				if (sleepmode.equals("Airplane Mode"))
+				{
+					Settings.System.putInt(context.getContentResolver(), Settings.System.AIRPLANE_MODE_ON, 1);
+					AudioManager audio = (AudioManager)context.getSystemService(Context.AUDIO_SERVICE);
+					audio.setRingerMode(AudioManager.RINGER_MODE_SILENT);
+				}
+				else if (sleepmode.equals("Vibrate"))
+				{
+					AudioManager audio = (AudioManager)context.getSystemService(Context.AUDIO_SERVICE);
+					audio.setRingerMode(AudioManager.RINGER_MODE_VIBRATE);
+				}
+				else if (sleepmode.equals("Silent"))
+				{
+					AudioManager audio = (AudioManager)context.getSystemService(Context.AUDIO_SERVICE);
+					audio.setRingerMode(AudioManager.RINGER_MODE_SILENT);
+				}
 			}
-			
-			AlarmAlertWakeLock.acquirePartial(context);
-			AlarmSettings settings = AlarmSettings.getAlarmSettingsById(context, alarmId);
-			Log.i("Sounding alarm " + settings.getName());
-			if (settings.isOneShot())
-				settings.setEnabled(false);
-			Intent alarmIntent = new Intent(context, AlarmService.class);
-			alarmIntent.putExtra(AlarmSettings.GEN_FIELD__ID, alarmId);
-			alarmIntent.putExtra("AlarmTime", intent.getLongExtra("AlarmTime", 0));
-			context.startService(alarmIntent);
 		}
 		finally
 		{

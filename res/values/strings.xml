@@ -103,4 +103,40 @@
     <string name="alarm_ticker">Alarm</string>
     
     <string name="fix_weather">Fix Weather</string>
+    
+    <string name="never_expire">This alarm will continue playing until you turn it off.</string>
+    <string name="expires_after">After %d Minutes, this alarm will automatically shut off.</string>
+    <string name="expire">Auto Shut Off</string>
+	<string-array name="expire_times">
+		<item>Never</item>
+		<item>5 minutes</item>
+		<item>10 minutes</item>
+		<item>15 minutes</item>
+		<item>20 minutes</item>
+		<item>25 minutes</item>
+		<item>30 minutes</item>
+	</string-array>
+	
+	<string name="sleepmode">Sleep Mode</string>
+	<string name="advanced">Advanced</string>
+	<string name="flight_mode_off">Sleep Mode is Disabled.</string>
+	<string-array name="sleep_modes">
+		<item>Silent</item>
+		<item>Vibrate</item>
+		<item>Airplane Mode</item>
+	</string-array>
+	<string-array name="sleep_mode_times">
+		<item>Disable Flight Mode</item>
+		<item>1 Hour</item>
+		<item>2 Hour</item>
+		<item>3 Hour</item>
+		<item>4 Hour</item>
+		<item>5 Hour</item>
+		<item>6 Hour</item>
+		<item>7 Hour</item>
+		<item>8 Hour</item>
+		<item>9 Hour</item>
+		<item>10 Hour</item>
+	</string-array>
+	<string name="sleep_mode_summary">The phone will set itself to %s %d Hours before your alarm.</string>
 </resources>
