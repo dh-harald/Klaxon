@@ -212,6 +212,10 @@ public class AlarmSettings extends AlarmSettingsBase {
 		{
 			GregorianCalendar cur = (GregorianCalendar) first.clone();
 			cur.add(Calendar.DATE, i);
+
+			if (!Helper.isPremium(mContext) && (cur.get(GregorianCalendar.DAY_OF_WEEK) == GregorianCalendar.MONDAY || cur.get(GregorianCalendar.DAY_OF_WEEK) == GregorianCalendar.WEDNESDAY))
+				continue;
+
 			int day = (cur.get(Calendar.DAY_OF_WEEK) - 2 + 7) % 7;
 			if (!daysOfWeek[day] && hasDays)
 				continue;

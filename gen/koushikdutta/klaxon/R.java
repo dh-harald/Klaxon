@@ -223,6 +223,7 @@ public final class R {
         public static final int never_expire=0x7f070019;
         public static final int nightmode_button_description=0x7f070009;
         public static final int no_alarm_set=0x7f070002;
+        public static final int no_premium_warning=0x7f070020;
         /**  Menu item title for general Alarm Clock Settings 
          */
         public static final int settings=0x7f070016;

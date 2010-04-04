@@ -351,8 +351,13 @@ public class AlarmEditActivity extends PreferenceActivity
 				toastText = String.format("This alarm will fire in %d days, %d hours, and %d minutes.", days, hours, minutes);
 		}
 
-		Toast toast = Toast.makeText(this, toastText, Toast.LENGTH_LONG);
+		Toast toast = Toast.makeText(this, toastText, Toast.LENGTH_SHORT);
 		toast.show();
+		
+		if (!Helper.isPremium(this)) {
+			toast = Toast.makeText(this, R.string.no_premium_warning, Toast.LENGTH_LONG);
+			toast.show();
+		}
 	}
 
 	@Override

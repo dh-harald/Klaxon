@@ -139,4 +139,5 @@
 		<item>10 Hour</item>
 	</string-array>
 	<string name="sleep_mode_summary">The phone will set itself to %s %d Hours before your alarm.</string>
+	<string name="no_premium_warning">WARNING! Alarms will not fire on Mondays and Wednesdays unless you have the Premium version!</string>
 </resources>
