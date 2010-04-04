@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.koushikdutta.klaxon;
+package koushikdutta.klaxon;
 
 import android.app.AlertDialog.Builder;
 import android.content.Context;

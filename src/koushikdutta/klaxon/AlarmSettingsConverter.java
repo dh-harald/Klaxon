@@ -1,4 +1,4 @@
-package com.koushikdutta.klaxon;
+package koushikdutta.klaxon;
 
 import android.content.Context;
 import android.database.Cursor;

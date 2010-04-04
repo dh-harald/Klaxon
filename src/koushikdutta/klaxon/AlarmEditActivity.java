@@ -1,9 +1,13 @@
-package com.koushikdutta.klaxon;
+package koushikdutta.klaxon;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.GregorianCalendar;
 
+import koushikdutta.klaxon.RepeatPreference.OnRepeatChangeListener;
+import koushikdutta.klaxon.SnoozePreference.OnSnoozeChangeListener;
+import koushikdutta.klaxon.VolumePreference.OnVolumeChangeListener;
+import koushikdutta.klaxon.VolumeRampPreference.OnVolumeRampChangeListener;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -33,11 +37,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TimePicker;
 import android.widget.Toast;
-
-import com.koushikdutta.klaxon.RepeatPreference.OnRepeatChangeListener;
-import com.koushikdutta.klaxon.SnoozePreference.OnSnoozeChangeListener;
-import com.koushikdutta.klaxon.VolumePreference.OnVolumeChangeListener;
-import com.koushikdutta.klaxon.VolumeRampPreference.OnVolumeRampChangeListener;
 
 public class AlarmEditActivity extends PreferenceActivity
 {

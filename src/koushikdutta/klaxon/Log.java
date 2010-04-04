@@ -18,7 +18,7 @@
  * package-level logging flag
  */
 
-package com.koushikdutta.klaxon;
+package koushikdutta.klaxon;
 
 import android.os.SystemClock;
 import android.util.Config;

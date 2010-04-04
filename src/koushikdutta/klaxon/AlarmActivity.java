@@ -1,9 +1,8 @@
-package com.koushikdutta.klaxon;
+package koushikdutta.klaxon;
 
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 
-import android.app.KeyguardManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -12,12 +11,8 @@ import android.database.sqlite.SQLiteDatabase;
 import android.hardware.Sensor;
 import android.hardware.SensorListener;
 import android.hardware.SensorManager;
-import android.media.AudioManager;
-import android.media.MediaPlayer;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Vibrator;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -227,8 +222,7 @@ public class AlarmActivity extends DeskClock
 	void stopAlarm()
 	{
 		Log.v("stopAlarm");
-		Intent i = new Intent();
-		i.setClassName(this, "com.koushikdutta.klaxon.AlarmService");
+		Intent i = new Intent(this, AlarmService.class);
 		i.putExtra("stop", true);
 		startService(i);
 		finish();
@@ -260,8 +254,7 @@ public class AlarmActivity extends DeskClock
 		if (mSnoozeTime == 0)
 			return;
 		Log.v("snoozeAlarm");
-		Intent i = new Intent();
-		i.setClassName(this, "com.koushikdutta.klaxon.AlarmService");
+		Intent i = new Intent(this, AlarmService.class);
 		i.putExtra("snooze", true);
 		startService(i);
 

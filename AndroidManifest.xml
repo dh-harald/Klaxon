@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-	package="com.koushikdutta.klaxon" android:versionCode="432" android:versionName="4.3.2">
+	package="koushikdutta.klaxon" android:versionCode="432" android:versionName="4.3.2">
 
 	<uses-sdk android:minSdkVersion="3" />
 	<uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
@@ -52,7 +52,7 @@
 		</activity>
 		<receiver android:name="AlarmReceiver">
 			<intent-filter>
-				<action android:name="com.koushikdutta.klaxon.ALARM_ALERT" />
+				<action android:name="koushikdutta.klaxon.ALARM_ALERT" />
 				<action android:name="android.intent.action.BOOT_COMPLETED" />
 				<action android:name="android.intent.action.TIME_SET" />
 				<action android:name="android.intent.action.TIMEZONE_CHANGED" />

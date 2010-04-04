@@ -5,7 +5,7 @@
  * should not be modified by hand.
  */
 
-package com.koushikdutta.klaxon;
+package koushikdutta.klaxon;
 
 public final class R {
     public static final class anim {

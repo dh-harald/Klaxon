@@ -1,4 +1,4 @@
-package com.koushikdutta.klaxon;
+package koushikdutta.klaxon;
 
 import com.antlersoft.android.db.FieldAccessor;
 import com.antlersoft.android.db.TableInterface;

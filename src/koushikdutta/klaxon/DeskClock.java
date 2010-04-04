@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.koushikdutta.klaxon;
+package koushikdutta.klaxon;
 
 import static android.os.BatteryManager.BATTERY_STATUS_CHARGING;
 import static android.os.BatteryManager.BATTERY_STATUS_FULL;
@@ -32,7 +32,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
-import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.database.Cursor;
@@ -71,7 +70,7 @@ public class DeskClock extends Activity {
     private static final String MUSIC_PACKAGE_ID = "com.android.music";
 
     // Alarm action for midnight (so we can update the date display).
-    private static final String ACTION_MIDNIGHT = "com.koushikdutta.klaxon.MIDNIGHT";
+    private static final String ACTION_MIDNIGHT = "koushikdutta.klaxon.MIDNIGHT";
 
     // Interval between polls of the weather widget. Its refresh period is
     // likely to be much longer (~3h), but we want to pick up any changes

@@ -1,4 +1,4 @@
-package com.koushikdutta.klaxon;
+package koushikdutta.klaxon;
 
 import java.util.Calendar;
 import java.util.Date;

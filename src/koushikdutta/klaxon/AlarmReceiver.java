@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.koushikdutta.klaxon;
+package koushikdutta.klaxon;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;

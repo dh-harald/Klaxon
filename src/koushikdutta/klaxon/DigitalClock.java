@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.koushikdutta.klaxon;
+package koushikdutta.klaxon;
 
 import java.text.DateFormatSymbols;
 import java.util.Calendar;

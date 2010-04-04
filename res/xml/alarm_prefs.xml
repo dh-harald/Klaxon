@@ -18,16 +18,16 @@
 	<CheckBoxPreference android:key="enabled"
 		android:title="Enabled" />
 	<Preference android:key="time" android:title="Time" />
-	<com.koushikdutta.klaxon.RepeatPreference
+	<koushikdutta.klaxon.RepeatPreference
 		android:key="repeat" android:title="Repeat" android:entries="@array/days_of_week"
 		android:entryValues="@array/days_of_week" />
-	<com.koushikdutta.klaxon.SnoozePreference
+	<koushikdutta.klaxon.SnoozePreference
 		android:key="snooze" android:title="Snooze" android:entries="@array/snooze_times" />
 
 	<PreferenceCategory android:title="Notification Settings" />
-	<com.koushikdutta.klaxon.VolumePreference
+	<koushikdutta.klaxon.VolumePreference
 		android:key="volume" android:title="Volume" android:entries="@array/alarm_volumes" />
-	<com.koushikdutta.klaxon.VolumeRampPreference
+	<koushikdutta.klaxon.VolumeRampPreference
 		android:key="volumeramp" android:title="Volume Ramp Up Time"
 		android:entries="@array/volume_ramps" />
 	<Preference android:key="alarm" android:title="Ringtone" />

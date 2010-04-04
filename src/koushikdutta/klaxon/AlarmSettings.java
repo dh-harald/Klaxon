@@ -1,4 +1,4 @@
-package com.koushikdutta.klaxon;
+package koushikdutta.klaxon;
 
 import java.text.DateFormatSymbols;
 import java.text.SimpleDateFormat;
@@ -233,7 +233,7 @@ public class AlarmSettings extends AlarmSettingsBase {
 		return null;
 	}
 	
-	public static final String ALARM_ALERT_ACTION = "com.koushikdutta.klaxon.ALARM_ALERT";
+	public static final String ALARM_ALERT_ACTION = "koushikdutta.klaxon.ALARM_ALERT";
 	public static AlarmSettings scheduleNextAlarm(Context context)
 	{
 		Log.v("Scheduling next alarm");

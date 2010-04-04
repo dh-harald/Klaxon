@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.koushikdutta.klaxon;
+package koushikdutta.klaxon;
 
 import android.content.Context;
 import android.os.PowerManager;
@@ -33,7 +33,7 @@ class AlarmAlertWakeLock
 
 		PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
 		
-		sWakeLock = pm.newWakeLock(PowerManager.FULL_WAKE_LOCK | PowerManager.ACQUIRE_CAUSES_WAKEUP | PowerManager.ON_AFTER_RELEASE, "com.koushikdutta.klaxon");
+		sWakeLock = pm.newWakeLock(PowerManager.FULL_WAKE_LOCK | PowerManager.ACQUIRE_CAUSES_WAKEUP | PowerManager.ON_AFTER_RELEASE, Log.LOGTAG);
 		sWakeLock.acquire();
 	}
 	
@@ -43,7 +43,7 @@ class AlarmAlertWakeLock
 
 		PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
 
-		sWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK | PowerManager.ACQUIRE_CAUSES_WAKEUP | PowerManager.ON_AFTER_RELEASE, "com.koushikdutta.klaxon");
+		sWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK | PowerManager.ACQUIRE_CAUSES_WAKEUP | PowerManager.ON_AFTER_RELEASE, Log.LOGTAG);
 		sWakeLock.acquire();
 	}
 
