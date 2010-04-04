@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-	package="com.koushikdutta.klaxon" android:versionCode="429" android:versionName="4.2.9">
+	package="com.koushikdutta.klaxon" android:versionCode="432" android:versionName="4.3.2">
 
 	<uses-sdk android:minSdkVersion="3" />
 	<uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
@@ -34,6 +34,7 @@
             <meta-data android:name="android.dock_home" android:value="true" />
 
             <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.DESK_DOCK" />
             </intent-filter>

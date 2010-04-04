@@ -47,17 +47,20 @@ public class AlarmReceiver extends BroadcastReceiver
 				String sleepmode = settings.getSleepMode();
 				if (sleepmode.equals("Airplane Mode"))
 				{
+					Settings.System.putInt(context.getContentResolver(), "notification_light_pulse", 0);
 					Settings.System.putInt(context.getContentResolver(), Settings.System.AIRPLANE_MODE_ON, 1);
 					AudioManager audio = (AudioManager)context.getSystemService(Context.AUDIO_SERVICE);
 					audio.setRingerMode(AudioManager.RINGER_MODE_SILENT);
 				}
 				else if (sleepmode.equals("Vibrate"))
 				{
+					Settings.System.putInt(context.getContentResolver(), "notification_light_pulse", 0);
 					AudioManager audio = (AudioManager)context.getSystemService(Context.AUDIO_SERVICE);
 					audio.setRingerMode(AudioManager.RINGER_MODE_VIBRATE);
 				}
 				else if (sleepmode.equals("Silent"))
 				{
+					Settings.System.putInt(context.getContentResolver(), "notification_light_pulse", 0);
 					AudioManager audio = (AudioManager)context.getSystemService(Context.AUDIO_SERVICE);
 					audio.setRingerMode(AudioManager.RINGER_MODE_SILENT);
 				}

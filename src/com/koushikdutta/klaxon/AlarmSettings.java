@@ -251,14 +251,22 @@ public class AlarmSettings extends AlarmSettingsBase {
 			minAlarmSettings = settings;
 		}
 
+		Log.i("Cancelling all alarms in preparation of reschedule.");
+		AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+		Intent intent = new Intent(ALARM_ALERT_ACTION);
+		PendingIntent sender = PendingIntent.getService(context, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+		am.cancel(sender);
+		intent = new Intent(context, AlarmService.class);
+		sender = PendingIntent.getService(context, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+		am.cancel(sender);
+
 		Intent alarmChanged = new Intent("android.intent.action.ALARM_CHANGED");
 		if (minAlarmSettings != null)
 		{
-			Intent intent = new Intent();
+			intent = new Intent();
 			intent.putExtra(GEN_FIELD__ID, minAlarmSettings.get_Id());
 			intent.putExtra("AlarmTime", (long) minAlarm);
 			intent.putExtra("start", true);
-			PendingIntent sender;
 			if (minAlarmSettings.mIsSleepMode)
 			{
 				intent.putExtra("sleepmode", true);
@@ -271,7 +279,6 @@ public class AlarmSettings extends AlarmSettingsBase {
 				sender = PendingIntent.getService(context, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
 			}
 
-			AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
 			am.set(AlarmManager.RTC_WAKEUP, minAlarm, sender);
 			alarmChanged.putExtra("alarmSet", true);
 
@@ -285,13 +292,7 @@ public class AlarmSettings extends AlarmSettingsBase {
 		}
 		else
 		{
-			AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-			Intent intent = new Intent(ALARM_ALERT_ACTION);
-			PendingIntent sender = PendingIntent.getService(context, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
-			am.cancel(sender);
-			intent = new Intent(context, AlarmService.class);
-			sender = PendingIntent.getService(context, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
-			am.cancel(sender);
+			Log.i("No alarms are currently enabled.");
 			alarmChanged.putExtra("alarmSet", false);
 			saveNextAlarm(context, null);
 		}

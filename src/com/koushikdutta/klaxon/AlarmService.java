@@ -110,21 +110,27 @@ public class AlarmService extends Service {
 				mMaxVolume = mSettings.getVolume();
 				
 				String sleepmode = mSettings.getSleepMode();
-				if (sleepmode.equals("Airplane Mode"))
+				if (sleepmode != null)
 				{
-					Settings.System.putInt(getContentResolver(), Settings.System.AIRPLANE_MODE_ON, 0);
-					AudioManager audio = (AudioManager)getSystemService(Context.AUDIO_SERVICE);
-					audio.setRingerMode(AudioManager.RINGER_MODE_NORMAL);
-				}
-				else if (sleepmode.equals("Vibrate"))
-				{
-					AudioManager audio = (AudioManager)getSystemService(Context.AUDIO_SERVICE);
-					audio.setRingerMode(AudioManager.RINGER_MODE_NORMAL);
-				}
-				else if (sleepmode.equals("Silent"))
-				{
-					AudioManager audio = (AudioManager)getSystemService(Context.AUDIO_SERVICE);
-					audio.setRingerMode(AudioManager.RINGER_MODE_NORMAL);
+					if (sleepmode.equals("Airplane Mode"))
+					{
+						Settings.System.putInt(getContentResolver(), "notification_light_pulse", 1);
+						Settings.System.putInt(getContentResolver(), Settings.System.AIRPLANE_MODE_ON, 0);
+						AudioManager audio = (AudioManager)getSystemService(Context.AUDIO_SERVICE);
+						audio.setRingerMode(AudioManager.RINGER_MODE_NORMAL);
+					}
+					else if (sleepmode.equals("Vibrate"))
+					{
+						Settings.System.putInt(getContentResolver(), "notification_light_pulse", 1);
+						AudioManager audio = (AudioManager)getSystemService(Context.AUDIO_SERVICE);
+						audio.setRingerMode(AudioManager.RINGER_MODE_NORMAL);
+					}
+					else if (sleepmode.equals("Silent"))
+					{
+						Settings.System.putInt(getContentResolver(), "notification_light_pulse", 1);
+						AudioManager audio = (AudioManager)getSystemService(Context.AUDIO_SERVICE);
+						audio.setRingerMode(AudioManager.RINGER_MODE_NORMAL);
+					}
 				}
 			}
 			try
