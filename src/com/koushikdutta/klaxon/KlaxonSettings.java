@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.provider.Settings;
+import android.text.format.DateFormat;
 
 public class KlaxonSettings
 {
@@ -23,8 +24,7 @@ public class KlaxonSettings
 
 	static boolean is24HourMode(Context context)
 	{
-		String value24 = Settings.System.getString(context.getContentResolver(), Settings.System.TIME_12_24);
-		return  !(value24 == null || value24.equals("12"));
+		return android.text.format.DateFormat.is24HourFormat(context);
 	}
 
 	public boolean getIsFirstStart()
@@ -37,13 +37,13 @@ public class KlaxonSettings
 		mEditor.putBoolean("IsFirstStart", value);
 		mEditor.commit();
 	}
-	
+
 	public void setFixWeather(boolean fix)
 	{
 		mEditor.putBoolean("FixWeather", fix);
 		mEditor.commit();
 	}
-	
+
 	public boolean getFixWeather()
 	{
 		return mPreferences.getBoolean("FixWeather", false);
