@@ -40,13 +40,13 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="-7dp"
-            android:text="AM"
+            android:text="@string/am"
             android:textSize="42sp"/>
         <TextView android:id="@+id/pm"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="-4dp"
-            android:text="PM"
+            android:text="@string/pm"
             android:textSize="42sp"/>
     </LinearLayout>
 </com.koushikdutta.klaxon.DigitalClock>

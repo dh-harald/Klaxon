@@ -1,10 +1,10 @@
 <LinearLayout android:id="@+id/LinearLayout01"
 	android:layout_height="wrap_content" xmlns:android="http://schemas.android.com/apk/res/android"
 	android:orientation="vertical" android:layout_width="fill_parent">
-	<Button android:layout_height="wrap_content" android:text="Ringtone"
+	<Button android:layout_height="wrap_content" android:text="@string/ringtone"
 		android:layout_width="fill_parent" android:textSize="20sp"
 		android:id="@+id/RingtoneButton"></Button>
-	<Button android:layout_height="wrap_content" android:text="Music"
+	<Button android:layout_height="wrap_content" android:text="@string/music"
 		android:layout_width="fill_parent" android:layout_marginTop="6dp"
 		android:textSize="20sp" android:id="@+id/SongButton"></Button>
 </LinearLayout>
