@@ -145,4 +145,15 @@
 	<string name="music">Music</string>
 	<string name="am">AM</string>
 	<string name="pm">PM</string>
+
+	<string name="set_alarm">Set Alarm</string>
+	<string name="name">Name</string>
+	<string name="enabled">Enabled</string>
+	<string name="time">Time</string>
+	<string name="repeat">Repeat</string>
+	<string name="snooze">Snooze</string>
+	<string name="notification_settings">Notification Settings</string>
+	<string name="volume">Volume</string>
+	<string name="volumeramp">Volume Ramp Up Time</string>
+	<string name="vibrate_enabled">Vibrate Enabled</string>
 </resources>

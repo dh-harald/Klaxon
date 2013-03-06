@@ -13,26 +13,26 @@
 
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
-	<PreferenceCategory android:title="Set Alarm" />
-	<Preference android:key="alarmname" android:title="Name" />
+	<PreferenceCategory android:title="@string/set_alarm" />
+	<Preference android:key="alarmname" android:title="@string/name" />
 	<CheckBoxPreference android:key="enabled"
-		android:title="Enabled" />
-	<Preference android:key="time" android:title="Time" />
+		android:title="@string/enabled" />
+	<Preference android:key="time" android:title="@string/time" />
 	<com.koushikdutta.klaxon.RepeatPreference
-		android:key="repeat" android:title="Repeat" android:entries="@array/days_of_week"
+		android:key="repeat" android:title="@string/repeat" android:entries="@array/days_of_week"
 		android:entryValues="@array/days_of_week" />
 	<com.koushikdutta.klaxon.SnoozePreference
-		android:key="snooze" android:title="Snooze" android:entries="@array/snooze_times" />
+		android:key="snooze" android:title="@string/snooze" android:entries="@array/snooze_times" />
 
-	<PreferenceCategory android:title="Notification Settings" />
+	<PreferenceCategory android:title="@string/notification_settings" />
 	<com.koushikdutta.klaxon.VolumePreference
-		android:key="volume" android:title="Volume" android:entries="@array/alarm_volumes" />
+		android:key="volume" android:title="@string/volume" android:entries="@array/alarm_volumes" />
 	<com.koushikdutta.klaxon.VolumeRampPreference
-		android:key="volumeramp" android:title="Volume Ramp Up Time"
+		android:key="volumeramp" android:title="@string/volumeramp"
 		android:entries="@array/volume_ramps" />
-	<Preference android:key="alarm" android:title="Ringtone" />
+	<Preference android:key="alarm" android:title="@string/ringtone" />
 	<CheckBoxPreference android:key="VibrateEnabled"
-		android:title="Vibrate Enabled" />
+		android:title="@string/vibrate_enabled" />
 	<Preference android:key="expiretime" android:title="@string/expire" />
 	<PreferenceCategory android:title="@string/advanced" />
 	<Preference android:key="sleepmode" android:title="@string/sleepmode" />
