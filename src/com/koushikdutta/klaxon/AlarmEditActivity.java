@@ -39,6 +39,9 @@ import com.koushikdutta.klaxon.SnoozePreference.OnSnoozeChangeListener;
 import com.koushikdutta.klaxon.VolumePreference.OnVolumeChangeListener;
 import com.koushikdutta.klaxon.VolumeRampPreference.OnVolumeRampChangeListener;
 
+import java.text.DateFormatSymbols;
+import java.util.Calendar;
+
 public class AlarmEditActivity extends PreferenceActivity
 {
 	MenuItem mDeleteAlarm;
@@ -55,7 +58,6 @@ public class AlarmEditActivity extends PreferenceActivity
 	CheckBoxPreference mVibrateEnabledPref;
 	Preference mExpirePref;
 	Preference mSleepModePref;
-	boolean mIs24HourMode = false;
 	SQLiteDatabase mDatabase;
 	
 	@Override
@@ -112,7 +114,7 @@ public class AlarmEditActivity extends PreferenceActivity
 		mSleepModePref = findPreference("sleepmode");
 		mSleepModePref.setOnPreferenceClickListener(new OnPreferenceClickListener() {
 			int mFlightModeTime = mSettings.getSleepLeadTime();
-			String mFlightMode = "Silent";
+			String mFlightMode = getString(R.string.silent);
 			
 			public boolean onPreferenceClick(Preference preference) {
 				AlertDialog.Builder builder = new Builder(AlarmEditActivity.this);
@@ -202,9 +204,6 @@ public class AlarmEditActivity extends PreferenceActivity
 			}
 		});
 
-		String value = Settings.System.getString(getContentResolver(), Settings.System.TIME_12_24);
-		mIs24HourMode = !(value == null || value.equals("12"));
-		
 		Toast tipToast = Toast.makeText(this, "Tip: You can create a one shot alarm by not selecting any Repeat days.", Toast.LENGTH_LONG);
 		tipToast.show();
 	}
@@ -213,7 +212,11 @@ public class AlarmEditActivity extends PreferenceActivity
 	{
 		int flightModeTime = mSettings.getSleepLeadTime();
 		String flightMode = mSettings.getSleepMode();
-		if (flightModeTime == 0 || flightMode == null || (!flightMode.equals("Airplane Mode") && !flightMode.equals("Silent") && !flightMode.equals("Vibrate")))
+		if (flightModeTime == 0 ||
+		    flightMode == null ||
+		    (!flightMode.equals(getString(R.string.airplane_mode)) &&
+		     !flightMode.equals(getString(R.string.silent)) &&
+		     !flightMode.equals(getString(R.string.vibrate))))
 		{
 			mSleepModePref.setSummary(R.string.flight_mode_off);
 		}
@@ -247,7 +250,14 @@ public class AlarmEditActivity extends PreferenceActivity
 		}
 		else
 		{
-			final String[] dayNames = { "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun" };
+			final String[] weekdays = new DateFormatSymbols().getShortWeekdays();
+			final String[] dayNames = { weekdays[Calendar.MONDAY],
+						    weekdays[Calendar.TUESDAY],
+						    weekdays[Calendar.WEDNESDAY],
+						    weekdays[Calendar.THURSDAY],
+						    weekdays[Calendar.FRIDAY],
+						    weekdays[Calendar.SATURDAY],
+						    weekdays[Calendar.SUNDAY] };
 			for (int i = 0; i < days.length; i++)
 			{
 				if (days[i])
@@ -260,7 +270,7 @@ public class AlarmEditActivity extends PreferenceActivity
 
 	void refreshVolumeSummary()
 	{
-		String volumeText = String.format("%d Percent", mSettings.getVolume());
+		String volumeText = getString(R.string.percent, mSettings.getVolume());
 		mVolumePref.setSummary(volumeText);
 	}
 
@@ -269,7 +279,7 @@ public class AlarmEditActivity extends PreferenceActivity
 		int volumeRamp = mSettings.getVolumeRamp();
 		if (volumeRamp != 0)
 		{
-			String volumeRampText = String.format("%d Seconds", volumeRamp);
+			String volumeRampText = getString(R.string.seconds, volumeRamp);
 			mVolumeRampPref.setSummary(volumeRampText);
 		}
 		else
@@ -280,15 +290,15 @@ public class AlarmEditActivity extends PreferenceActivity
 
 	void refreshSnoozeSummary()
 	{
-		String snoozeText = String.format("%d Minutes", mSettings.getSnoozeTime());
+		String snoozeText = getString(R.string.minutes, mSettings.getSnoozeTime());
 		mSnoozePref.setSummary(snoozeText);
 	}
 
 	void refreshTimeSummary()
 	{
 		SimpleDateFormat df;
-		if (mIs24HourMode)
-			df = new SimpleDateFormat("H:mm");
+		if (KlaxonSettings.is24HourMode(this))
+			df = new SimpleDateFormat("kk:mm");
 		else
 			df = new SimpleDateFormat("h:mm a");
 		String time = df.format(new Date(2008, 1, 1, mSettings.getHour(), mSettings.getMinutes()));
@@ -375,7 +385,7 @@ public class AlarmEditActivity extends PreferenceActivity
 					refreshTimeSummary();
 					scheduleNextAlarm();
 				}
-			}, 0, 0, false);
+			}, 0, 0, KlaxonSettings.is24HourMode(this));
 			d.setTitle("Time");
 			break;
 		case DIALOG_NAMEEDITOR:

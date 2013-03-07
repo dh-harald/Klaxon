@@ -120,11 +120,6 @@
 	<string name="sleepmode">Sleep Mode</string>
 	<string name="advanced">Advanced</string>
 	<string name="flight_mode_off">Sleep Mode is Disabled.</string>
-	<string-array name="sleep_modes">
-		<item>Silent</item>
-		<item>Vibrate</item>
-		<item>Airplane Mode</item>
-	</string-array>
 	<string-array name="sleep_mode_times">
 		<item>Disable Flight Mode</item>
 		<item>1 Hour</item>
@@ -156,4 +151,10 @@
 	<string name="volume">Volume</string>
 	<string name="volumeramp">Volume Ramp Up Time</string>
 	<string name="vibrate_enabled">Vibrate Enabled</string>
+	<string name="percent">%d Percent</string>
+	<string name="seconds">%d Seconds</string>
+	<string name="minutes">%d Minutes</string>
+	<string name="silent">Silent</string>
+	<string name="vibrate">Vibrate</string>
+	<string name="airplane_mode">Airplane Mode</string>
 </resources>
