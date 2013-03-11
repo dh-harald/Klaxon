@@ -20,8 +20,8 @@
         android:icon="@drawable/ic_menu_desk_clock"/>
     <item android:id="@+id/menu_item_add_alarm"
         android:title="@string/add_alarm"
-        android:icon="@drawable/ic_menu_add"/>
-    
+        android:icon="@drawable/ic_menu_add"
+        android:showAsAction="always"/>
 </menu>
 
 

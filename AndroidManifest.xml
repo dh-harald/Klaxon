@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-	package="com.koushikdutta.klaxon" android:versionCode="432" android:versionName="4.3.2">
+	package="com.koushikdutta.klaxon" android:versionCode="432" android:versionName="4.3.2h">
 
 	<uses-sdk android:minSdkVersion="3" />
 	<uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />

@@ -39,7 +39,8 @@ import android.view.ViewGroup;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
-import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.ToggleButton;
 import android.widget.CursorAdapter;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -65,10 +66,7 @@ public class AlarmClock extends Activity implements OnItemClickListener {
     private Cursor mCursor;
     private SQLiteDatabase mDatabase;
 
-    private void updateIndicatorAndAlarm(boolean enabled, ImageView bar,
-            AlarmSettings alarm) {
-        bar.setImageResource(enabled ? R.drawable.ic_indicator_on
-                : R.drawable.ic_indicator_off);
+    private void updateIndicatorAndAlarm(boolean enabled,          AlarmSettings alarm) {
         alarm.setEnabled(enabled);
         alarm.update();
     }
@@ -88,28 +86,20 @@ public class AlarmClock extends Activity implements OnItemClickListener {
         }
 
         public void bindView(View view, Context context, Cursor cursor) {
-			final AlarmSettings alarm = new AlarmSettings(context, mDatabase);
-			alarm.populate(cursor);
+            final AlarmSettings alarm = new AlarmSettings(context, mDatabase);
+            alarm.populate(cursor);
 
             View indicator = view.findViewById(R.id.indicator);
 
-            // Set the initial resource for the bar image.
-            final ImageView barOnOff =
-                    (ImageView) indicator.findViewById(R.id.bar_onoff);
-            barOnOff.setImageResource(alarm.getEnabled() ?
-                    R.drawable.ic_indicator_on : R.drawable.ic_indicator_off);
+            final ToggleButton buttonOnOff =
+                    (ToggleButton) indicator.findViewById(R.id.button_onoff);
+            buttonOnOff.setChecked(alarm.getEnabled());
 
-            // Set the initial state of the clock "checkbox"
-            final CheckBox clockOnOff =
-                    (CheckBox) indicator.findViewById(R.id.clock_onoff);
-            clockOnOff.setChecked(alarm.getEnabled());
-
-            // Clicking outside the "checkbox" should also change the state.
-            indicator.setOnClickListener(new OnClickListener() {
+            buttonOnOff.setOnClickListener(new OnClickListener() {
+                    @Override
                     public void onClick(View v) {
-                        clockOnOff.toggle();
-                        updateIndicatorAndAlarm(clockOnOff.isChecked(),
-                                barOnOff, alarm);
+                        alarm.setEnabled(buttonOnOff.isChecked());
+                        alarm.update();
                     }
             });
 
@@ -135,18 +125,14 @@ public class AlarmClock extends Activity implements OnItemClickListener {
                 daysOfWeekView.setVisibility(View.GONE);
             }
 
-            // Display the label
-            TextView labelView =
-                    (TextView) view.findViewById(R.id.label);
             if (alarm.getName() != null && alarm.getName().length() != 0) {
-                labelView.setText(alarm.getName());
-                labelView.setVisibility(View.VISIBLE);
-            } else {
-                labelView.setVisibility(View.GONE);
+                buttonOnOff.setText(alarm.getName());
+                buttonOnOff.setTextOn(alarm.getName());
+                buttonOnOff.setTextOff(alarm.getName());
             }
         }
     };
-  	
+
     @Override
     public boolean onContextItemSelected(final MenuItem item) {
         final AdapterContextMenuInfo info =
@@ -211,22 +197,6 @@ public class AlarmClock extends Activity implements OnItemClickListener {
         mAlarmsList.setVerticalScrollBarEnabled(true);
         mAlarmsList.setOnItemClickListener(this);
         mAlarmsList.setOnCreateContextMenuListener(this);
-
-        View addAlarm = findViewById(R.id.add_alarm);
-        addAlarm.setOnClickListener(new View.OnClickListener() {
-                public void onClick(View v) {
-        			AlarmSettings settings = new AlarmSettings(AlarmClock.this, mDatabase);
-        			settings.insert();
-        			AlarmSettings.editAlarm(AlarmClock.this, settings.get_Id());
-                	mCursor.requery();
-        		}
-            });
-        // Make the entire view selected when focused.
-        addAlarm.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-                public void onFocusChange(View v, boolean hasFocus) {
-                    v.setSelected(hasFocus);
-                }
-        });
 
         ImageButton deskClock =
                 (ImageButton) findViewById(R.id.desk_clock_button);

@@ -20,31 +20,6 @@
     android:layout_height="fill_parent"
     android:orientation="vertical"> 
 
-    <LinearLayout android:id="@+id/add_alarm"
-        android:clickable="true"
-        android:focusable="true"
-        android:background="@android:drawable/list_selector_background"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-
-        <ImageView
-            style="@style/alarm_list_left_column"
-            android:duplicateParentState="true"
-            android:gravity="center"
-            android:scaleType="center"
-            android:src="@drawable/add_alarm" />
-
-        <TextView
-            android:layout_height="wrap_content"
-            android:layout_width="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:textAppearance="?android:attr/textAppearanceLarge"
-            android:textColor="?android:attr/textColorPrimary"
-            android:text="@string/add_alarm" />
-
-    </LinearLayout>
-
     <ImageView
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"

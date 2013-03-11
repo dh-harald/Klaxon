@@ -33,21 +33,12 @@
         android:background="@drawable/clock_selector"
         android:gravity="center"
         android:orientation="vertical">
-        <CheckBox android:id="@+id/clock_onoff"
+        <ToggleButton
+            android:id="@+id/button_onoff"
             android:focusable="false"
-            android:clickable="false"
-            android:background="@drawable/indicator_clock_onoff"
             android:duplicateParentState="true"
             android:layout_height="wrap_content"
-            android:layout_width="wrap_content"
-            android:layout_gravity="center"
-            android:button="@null" />
-        <ImageView android:id="@+id/bar_onoff"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:paddingTop="4dip"
-            android:src="@drawable/ic_indicator_off" />
+            android:layout_width="wrap_content" />
     </com.koushikdutta.klaxon.DontPressWithParentLayout>
 
     <ImageView
@@ -90,18 +81,6 @@
                 android:textAppearance="?android:attr/textAppearanceSmall"
                 android:textStyle="bold"
                 android:textColor="?android:attr/textColorPrimary"/>
-
-            <TextView android:id="@+id/label"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:paddingLeft="8dip"
-                android:textAppearance="?android:attr/textAppearanceSmall"
-                android:textColor="?android:attr/textColorTertiary"
-                android:textStyle="bold"
-                android:gravity="right"
-                android:singleLine="true"/>
-
         </LinearLayout>
 
         <TextView android:id="@+id/daysOfWeek"
